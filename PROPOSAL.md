@@ -5,7 +5,7 @@
 - 项目名称：moonqipai：MoonBit 通用棋牌规则基础库
 - 参赛者：苏春昊
 - 联系方式：1234567890
-- GitHub 仓库链接：https://github.com/wbgxiaosu/moonqipai（15 个有效提交，按 core 模型 → go 适配 → xiangqi 适配 → chess 适配 → 扑克模块 → 示例 → CI → 文档的顺序拆分，每个提交附设计说明，无空提交、无无意义拆分、无重复提交；mooncakes 已发布 v0.1.0）
+- GitHub 仓库链接：https://github.com/wbgxiaosu/moonqipai（16 个有效提交，按 core 模型 → go 适配 → xiangqi 适配 → chess 适配 → 扑克模块 → 示例 → CI → 文档的顺序拆分，每个提交附设计说明，无空提交、无无意义拆分、无重复提交；mooncakes 已发布 v0.1.0）
 - 项目方向：MoonBit 棋牌规则统一基础库 / 领域基础设施
 - 是否为移植项目：否，原创项目（统一引擎层与扑克模块为原创代码；三个棋种规则内核以依赖方式复用已有开源库，关系详见下文）
 
