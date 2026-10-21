@@ -1,0 +1,6 @@
+import {
+  "moonbitlang/core/debug",
+  "L76148/moonchess",
+  "wbgxiaosu/moonbaduk",
+  "wbgxiaosu/xiangqi",
+}
