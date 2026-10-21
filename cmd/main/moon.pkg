@@ -1,0 +1,6 @@
+import {
+  "wbgxiaosu/moonqipai/core",
+  "wbgxiaosu/moonqipai/cards",
+}
+
+pkgtype(kind: "executable")
