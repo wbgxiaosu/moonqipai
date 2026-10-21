@@ -19,10 +19,8 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
-      - name: Refresh registry and install dependencies
-        run: |
-          moon update
-          moon install
+      - name: Refresh registry index
+        run: moon update
 
       - name: moon check
         run: moon check --target ${{ matrix.backend }}
