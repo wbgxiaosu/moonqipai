@@ -47,6 +47,25 @@ moon check && moon test
 
 ## Usage
 
+After `moon add wbgxiaosu/moonqipai`, declare the packages you need in the consuming package's `moon.pkg`:
+
+```
+import {
+  "wbgxiaosu/moonqipai/core",
+  "wbgxiaosu/moonqipai/gomoku",
+  "wbgxiaosu/moonqipai/othello",
+  "wbgxiaosu/moonqipai/checkers",
+  "wbgxiaosu/moonqipai/blackjack",
+  "wbgxiaosu/moonqipai/fivedraw",
+  "wbgxiaosu/moonqipai/uno",
+  "wbgxiaosu/moonqipai/cards",
+}
+```
+
+(This exact configuration was verified by installing the published package with `moon add` and running code against it.)
+
+then use them from MoonBit code:
+
 ```moonbit
 // one interface for all board games
 let c : @core.Engine = @core.Engine::make(@core.Chess)

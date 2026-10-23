@@ -10,7 +10,7 @@ Every external specification, rule set, algorithm and third-party dependency use
 
 - Rule core: [wbgxiaosu/moonbaduk](https://github.com/wbgxiaosu/moonbaduk) 0.1.0 (own work, Apache-2.0), published on [mooncakes.io](https://mooncakes.io/docs/#/wbgxiaosu/moonbaduk). moonqipai does not reimplement or modify Go rules; it delegates through an adapter.
 - SGF serialization and coordinate vocabulary follow **SGF FF[4]** — the Smart Game Format specification, maintained at <https://www.red-bean.com/sgf/> (property definitions and coordinate system sections).
-- Text-protocol notation follows **GTP v2** — the Go Text Protocol version 2 specification (Gunnar Farnebäck), <https://www.lysator.liu.se/~gunnar/gtp/>. moonqipai/moonbaduk use GTP vertex strings (e.g. `Q16`, letters skip `i`) as their native move notation.
+- Text-protocol notation follows **GTP v2** — the Go Text Protocol version 2 specification (Gunnar Farnebäck), <https://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html>; the protocol is also documented at Sensei's Library, <https://senseis.xmp.net/?GoTextProtocol>. moonqipai/moonbaduk use GTP vertex strings (e.g. `Q16`, letters skip `i`) as their native move notation.
 - Scope of use: move notation format only. Territory scoring, ko, suicide and life-and-death semantics live entirely in moonbaduk and are not redefined here.
 
 ### Xiangqi (Chinese chess) — delegated to wbgxiaosu/xiangqi
@@ -24,7 +24,7 @@ Every external specification, rule set, algorithm and third-party dependency use
 
 - Rule core: [L76148/moonchess](https://mooncakes.io/docs/#/L76148/moonchess) 0.1.1 (Apache-2.0), third-party. moonqipai consumes it as a library dependency and does not reimplement chess rules.
 - **FIDE Laws of Chess**, effective 1 January 2023 edition, published by the International Chess Federation at <https://handbook.fide.com/chapter/LawsOfChess> — the authoritative rule source the moonchess engine's semantics are measured against. moonqipai does not modify or reinterpret them.
-- Move notation follows **UCI** (Universal Chess Interface) coordinate strings such as `e2e4`; the interface specification is published by ChessBase/Shredder at <https://www.shredderchess.com/chess-features/uci.html>.
+- Move notation follows **UCI** (Universal Chess Interface) coordinate strings such as `e2e4`; the interface is documented in the Chess Programming Wiki's UCI entry, <https://www.chessprogramming.org/UCI>.
 - Scope of use: move notation only.
 
 ### Gomoku (free-style) — original engine in `gomoku/`
@@ -74,7 +74,7 @@ Every external specification, rule set, algorithm and third-party dependency use
 
 - Algorithm: Guy L. Steele Jr., Doug Lea, Christine H. Flood, *"Fast Splittable Pseudorandom Number Generators"*, OOPSLA 2014; canonical single-file reference implementation by Sebastiano Vigna at <https://xorshift.di.unimi.it/splitmix64.c> (public domain dedication).
 - Scope of use: the mixing function's arithmetic structure (constants `0x9E3779B97F4A7C15`, `0xBF58476D1CE4E5B9`, `0x94D049BB133111EB`). Written from scratch in MoonBit; no code copied.
-- Fisher–Yates shuffling follows the modern ( Durstenfeld/Knuth ) form, Algorithm P in Donald E. Knuth, *The Art of Computer Programming*, Vol. 2, §3.4.2.
+- Fisher–Yates shuffling follows the modern (Durstenfeld/Knuth) form, Algorithm P in Donald E. Knuth, *The Art of Computer Programming*, Vol. 2, §3.4.2.
 
 ### GameInfo metadata — inspired by OpenSpiel
 
