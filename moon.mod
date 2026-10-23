@@ -25,7 +25,7 @@ keywords = [
 
 preferred_target = "wasm-gc"
 
-description = "Unified board & card game rules foundation for MoonBit: Go, Xiangqi, Chess, Gomoku, Othello, Blackjack, Five-card Draw and UNO behind one interface, with shared GameInfo/Rng abstractions"
+description = "Unified board & card game rules foundation for MoonBit: Go, Xiangqi, Chess, Gomoku, Othello, Checkers, Blackjack, Five-card Draw and UNO behind one interface, with shared GameInfo/Rng abstractions"
 
 import {
   "L76148/moonchess@0.1.1",

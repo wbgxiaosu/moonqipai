@@ -1,6 +1,6 @@
 # moonqipai
 
-Unified board & card game rules foundation for MoonBit: **eight games behind shared abstractions** — Go, Xiangqi (Chinese chess), International Chess, Gomoku, Othello, Checkers, Blackjack, Five-card Draw and UNO.
+Unified board & card game rules foundation for MoonBit: **nine games behind shared abstractions** — Go, Xiangqi (Chinese chess), International Chess, Gomoku, Othello, Checkers, Blackjack, Five-card Draw and UNO.
 
 This is a reusable infrastructure library, not a game. It gives tool builders — GUI clients, tournament servers, teaching software, AI harnesses, data pipelines — one consistent model for rules adjudication, legal-action enumeration, undo, hidden-information views and result reporting across games.
 
@@ -29,6 +29,22 @@ Six of the nine entries (plus all shared abstractions) are original code written
 - **Hidden information** — engines only expose what the acting player may see: blackjack hides the dealer hole card until settlement, five-card draw exposes hands solely through `hand_of(seat)` for the seat's owner and publishes a textual action log for everyone else.
 - **`Outcome`** — normalised terminal results with record strings ("1-0") and game-conventional margins ("B+24.5"), plus structured settlement (payout multipliers in blackjack, pot collection in five-card draw).
 
+## Installation
+
+Requires the MoonBit toolchain (moonc ≥ 0.10.14). Install the library from [mooncakes.io](https://mooncakes.io/docs/#/wbgxiaosu/moonqipai):
+
+```bash
+moon add wbgxiaosu/moonqipai
+```
+
+or from source:
+
+```bash
+git clone https://github.com/wbgxiaosu/moonqipai
+cd moonqipai
+moon check && moon test
+```
+
 ## Usage
 
 ```moonbit
@@ -50,7 +66,22 @@ let p : @fivedraw.DrawPoker = @fivedraw.DrawPoker::new(4, 7UL)
 let _ = p.bet(0, @fivedraw.Call)
 ```
 
-See `cmd/main` for a runnable example of every game family. The example binary is documentation only — the deliverable is the library.
+Running it:
+
+```console
+$ moon run cmd/main
+moonqipai usage example
+=======================
+chess legal moves: 29
+gomoku over=false outcome=false
+othello legal moves: 4
+blackjack settled: dealer wins
+five-card draw winner: seat 0, pot 3
+uno progressed 60 actions, over=false
+hand 9c 9d 9h 2s 2c = full house
+```
+
+The example binary is documentation only — the deliverable is the library.
 
 ## Building and testing
 
@@ -70,4 +101,14 @@ CI runs `moon check` and `moon test` on the wasm, wasm-gc and native backends.
 
 ## Scope statement
 
-moonqipai is an original MoonBit codebase. The Go, Xiangqi and chess rule cores are delegated to the published mooncakes packages listed above (moonbaduk and xiangqi by the same author; moonchess by L76148, Apache-2.0) — moonqipai's contribution is the unified engine layer (now covering all five board games), the normalised outcome model, the GameInfo/Rng abstractions, the poker utilities and five fully original game engines (gomoku, othello, checkers, blackjack, five-card draw, UNO). Rules semantics follow the public SGF FF[4], GTP v2, ICCS, UCI, FIDE/Xiangqi rule documents and standard casino rules.
+moonqipai is an original MoonBit codebase. The Go, Xiangqi and chess rule cores are delegated to the published mooncakes packages listed above (moonbaduk and xiangqi by the same author; moonchess by L76148) — moonqipai's contribution is the unified engine layer (now covering all five board games), the normalised outcome model, the GameInfo/Rng abstractions, the poker utilities and six fully original game engines (gomoku, othello, checkers, blackjack, five-card draw, UNO).
+
+Every referenced specification, rule set, algorithm and dependency is named with its concrete source, version and licence in [docs/RULES_REFERENCES.md](docs/RULES_REFERENCES.md) — including SGF FF[4] (red-bean.com), GTP v2 (lysator.liu.se), the FIDE Laws of Chess (handbook.fide.com, 2023 edition), ICCS coordinate notation, the Chinese Xiangqi rule book (中国象棋竞赛规则 2020 版), standard casino/poker/UNO rule descriptions, the splitmix64 paper (Steele–Lea–Flood, OOPSLA 2014) and OpenSpiel's metadata model. No third-party code is copied; the three rule cores are consumed as unmodified Apache-2.0 library dependencies.
+
+## Acceptance
+
+The acceptance criteria are mapped to concrete, verifiable evidence in [ACCEPTANCE.md](ACCEPTANCE.md).
+
+## License
+
+[Apache License 2.0](LICENSE).
