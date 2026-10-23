@@ -1,9 +1,8 @@
 import {
   "wbgxiaosu/moonqipai/core",
-  "wbgxiaosu/moonqipai/gomoku",
-  "wbgxiaosu/moonqipai/othello",
   "wbgxiaosu/moonqipai/blackjack",
   "wbgxiaosu/moonqipai/fivedraw",
+  "wbgxiaosu/moonqipai/uno",
   "wbgxiaosu/moonqipai/cards",
 }
 

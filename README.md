@@ -1,6 +1,6 @@
 # moonqipai
 
-Unified board & card game rules foundation for MoonBit: **seven games behind shared abstractions** — Go, Xiangqi (Chinese chess), International Chess, Gomoku, Othello, Blackjack and Five-card Draw.
+Unified board & card game rules foundation for MoonBit: **eight games behind shared abstractions** — Go, Xiangqi (Chinese chess), International Chess, Gomoku, Othello, Checkers, Blackjack, Five-card Draw and UNO.
 
 This is a reusable infrastructure library, not a game. It gives tool builders — GUI clients, tournament servers, teaching software, AI harnesses, data pipelines — one consistent model for rules adjudication, legal-action enumeration, undo, hidden-information views and result reporting across games.
 
@@ -15,13 +15,15 @@ This is a reusable infrastructure library, not a game. It gives tool builders �
 | Othello (Reversi) | `othello` | **original** — eight-direction bracketing flips, pass flow, majority scoring | turn-based, perfect info |
 | Blackjack | `blackjack` | **original** — seeded shoe, dealer hole card hidden, 3:2 naturals, dealer-stands-on-17 | chance + hidden info |
 | Five-card draw | `fivedraw` | **original** — 2..=6 players, two betting rounds, discards, showdown | chance + hidden info + multi-player |
+| Checkers (English draughts) | `checkers` | **original** — mandatory captures, jump chains, crowning, kings | turn-based, perfect info |
+| UNO | `uno` | **original** — 108-card deck, action cards, colour choice, draw-window discipline, 2..=8 players | chance + hidden info + multi-player |
 | Generic poker evaluation | `cards` | **original** — 52-card deck, seeded splitmix64 shuffle, 5..7-card hand evaluation | utilities |
 
-Four of the seven games (plus the poker utilities) are original code written for this project; the three classical board-game rule cores are delegated to published mooncakes packages instead of being reimplemented.
+Six of the nine entries (plus all shared abstractions) are original code written for this project; the three classical board-game rule cores are delegated to published mooncakes packages instead of being reimplemented.
 
 ## Shared abstractions
 
-- **`core.Engine`** — one facade for the five board games: `apply` / `legal_moves` / `undo` / `turn` / `is_over` / `outcome` / `render`, with per-game native notation (GTP vertices, ICCS, UCI, coordinates).
+- **`core.Engine`** — one facade for **all five board games** (Go, Xiangqi, chess, Gomoku, Othello): `apply` / `legal_moves` / `undo` / `turn` / `is_over` / `outcome` / `render`, with per-game native notation (GTP vertices, ICCS, UCI, coordinates).
 - **`core.GameInfo`** — structural metadata in the spirit of OpenSpiel's game type: player-count range, perfect/imperfect information, chance involvement, sequential turns. Tools branch on this instead of hard-coding rules.
 - **`core.Rng`** — seeded splitmix64 source; every chance-driven game is fully reproducible from its seed.
 - **Hidden information** — engines only expose what the acting player may see: blackjack hides the dealer hole card until settlement, five-card draw exposes hands solely through `hand_of(seat)` for the seat's owner and publishes a textual action log for everyone else.
@@ -62,10 +64,10 @@ CI runs `moon check` and `moon test` on the wasm, wasm-gc and native backends.
 
 ## Roadmap
 
-- Unified engine integration for gomoku/othello into `core.Engine` (they are standalone engines today);
 - more card games on the shared betting skeleton (stud, hearts);
-- simultaneous-action and repeated-play metadata extensions to `GameInfo`.
+- simultaneous-action and repeated-play metadata extensions to `GameInfo`;
+- backgammon on the seeded-Rng chance model.
 
 ## Scope statement
 
-moonqipai is an original MoonBit codebase. The Go, Xiangqi and chess rule cores are delegated to the published mooncakes packages listed above (moonbaduk and xiangqi by the same author; moonchess by L76148, Apache-2.0) — moonqipai's contribution is the unified engine layer, the normalised outcome model, the GameInfo/Rng abstractions, the poker utilities and four fully original game engines (gomoku, othello, blackjack, five-card draw). Rules semantics follow the public SGF FF[4], GTP v2, ICCS, UCI, FIDE/Xiangqi rule documents and standard casino rules.
+moonqipai is an original MoonBit codebase. The Go, Xiangqi and chess rule cores are delegated to the published mooncakes packages listed above (moonbaduk and xiangqi by the same author; moonchess by L76148, Apache-2.0) — moonqipai's contribution is the unified engine layer (now covering all five board games), the normalised outcome model, the GameInfo/Rng abstractions, the poker utilities and five fully original game engines (gomoku, othello, checkers, blackjack, five-card draw, UNO). Rules semantics follow the public SGF FF[4], GTP v2, ICCS, UCI, FIDE/Xiangqi rule documents and standard casino rules.

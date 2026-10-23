@@ -4,34 +4,32 @@
 /// library, which applications embed directly.
 ///
 /// Drives one representative of every game family through the shared
-/// abstractions: a turn-based board game (chess via the unified engine),
-/// a connection game (gomoku, fully original), a randomness-driven card
-/// game with hidden information (blackjack) and a complete multi-player
-/// betting game (five-card draw).
+/// abstractions: five board games behind the single unified engine
+/// (chess, gomoku and othello shown here), a randomness-driven card game
+/// with hidden information (blackjack), a complete multi-player betting
+/// game (five-card draw) and a casual action-card game (UNO).
 fn main {
   println("moonqipai usage example")
   println("=======================")
-  // unified engine: chess opening
+  // one engine interface, five board games — chess opening
   let c = @core.Engine::make(@core.Chess)
   for mv in ["e2e4", "e7e5", "g1f3"] {
     ignore(c.apply(mv))
   }
   println("chess legal moves: \{c.legal_moves().length()}")
-  // original gomoku engine: a horizontal line in the making
-  let g = @gomoku.Gomoku::standard()
-  for i in 0..<4 {
-    let _ = g.play(7, i)
-    let _ = g.play(0, i + 1)
+  // the same interface drives gomoku...
+  let g = @core.Engine::make(@core.Gomoku(15))
+  for mv in ["H8", "I9", "J10", "G7", "K11", "F6"] {
+    ignore(g.apply(mv))
   }
-  let _ = g.play(7, 4)
-  let gw = if g.winner() is @gomoku.Black { "black" } else { "none" }
-  println("gomoku over=\{g.is_over()} winner=\{gw}")
-  // original othello engine: classical opening line
-  let o = @othello.Othello::new()
-  let _ = o.play(2, 3)
-  let _ = o.play(4, 2)
-  let (b, w) = o.counts()
-  println("othello after two moves: \{b} vs \{w}")
+  let gm = g.outcome()
+  println("gomoku over=\{g.is_over()} outcome=\{gm is Some(_)}")
+  // ...and othello
+  let o = @core.Engine::make(@core.Othello)
+  for mv in ["D3", "C5", "F6"] {
+    ignore(o.apply(mv))
+  }
+  println("othello legal moves: \{o.legal_moves().length()}")
   // blackjack: seeded, reproducible, dealer hole card hidden until stand
   let bj = @blackjack.Blackjack::new(42UL)
   let _ = bj.act(@blackjack.Stand)
@@ -54,6 +52,38 @@ fn main {
     let _ = p.bet(seat, @fivedraw.Check)
   }
   println("five-card draw winner: seat \{p.winner()}, pot \{p.pot()}")
+  // UNO: action-card game with hidden hands
+  let u = @uno.Uno::new(3, 42UL)
+  let mut steps = 0
+  while !(u.is_over()) && steps < 60 {
+    let seat = u.turn()
+    let hand = u.hand_of(seat).unwrap()
+    let mut played = false
+    if !(u.drawn_pending()) {
+      for i in 0..<hand.length() {
+        let card = hand[i]
+        let choice = if card.kind is @uno.Wild || card.kind is @uno.WildDrawFour {
+          Some(@uno.Blue)
+        } else {
+          None
+        }
+        if card.playable_on(u.active_color(), u.active_face()) {
+          let _ = u.act(seat, @uno.Play(i, choice))
+          played = true
+          break
+        }
+      }
+      if !played {
+        let _ = u.act(seat, @uno.Draw)
+      }
+    } else {
+      if u.act(seat, @uno.PlayDrawn(Some(@uno.Red))) is Err(_) {
+        let _ = u.act(seat, @uno.Hold)
+      }
+    }
+    steps += 1
+  }
+  println("uno progressed \{steps} actions, over=\{u.is_over()}")
   // poker evaluation utilities are exposed for pipelines
   match @cards.Card::parse_many("9c 9d 9h 2s 2c") {
     Some(cards) =>
