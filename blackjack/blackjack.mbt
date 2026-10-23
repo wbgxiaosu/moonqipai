@@ -182,3 +182,10 @@ pub fn Blackjack::act(self : Blackjack, a : Action) -> Result[Unit, String] {
     }
   }
 }
+
+///|
+/// The structural profile of blackjack: two sides (player and dealer),
+/// hidden information (the hole card) and a shuffled shoe.
+pub fn Blackjack::game_info(_self : Blackjack) -> @core.GameInfo {
+  { players: (2, 2), perfect_information: false, has_chance: true, sequential: true }
+}

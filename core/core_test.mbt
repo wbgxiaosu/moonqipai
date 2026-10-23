@@ -212,3 +212,22 @@ test "core: player labels cover all five board games" {
   assert_str(@core.P1.label(@core.Othello), "Black", "othello first player")
   assert_str(@core.P2.label(@core.Othello), "White", "othello second player")
 }
+
+///|
+test "core: game_info metadata for every board game" {
+  let games : Array[@core.Engine] = [
+    @core.Engine::make(@core.Go(19, 7.5)),
+    @core.Engine::make(@core.Xiangqi),
+    @core.Engine::make(@core.Chess),
+    @core.Engine::make(@core.Gomoku(15)),
+    @core.Engine::make(@core.Othello),
+  ]
+  for g in games {
+    let info = g.game_info()
+    assert_true(info.perfect_information, "board games are perfect information")
+    assert_true(!info.has_chance, "board games have no chance events")
+    assert_true(info.sequential, "board games are sequential")
+    let (lo, hi) = info.players
+    assert_true(lo == 2 && hi == 2, "board games are two-player")
+  }
+}

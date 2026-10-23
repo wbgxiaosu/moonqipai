@@ -412,3 +412,10 @@ pub fn Uno::act(self : Uno, seat : Int, a : Action) -> Result[Unit, UnoError] {
     }
   }
 }
+
+///|
+/// The structural profile of UNO: 2..=8 players, hidden hands, a shuffled
+/// deck and strictly sequential turns.
+pub fn Uno::game_info(_self : Uno) -> @core.GameInfo {
+  { players: (2, 8), perfect_information: false, has_chance: true, sequential: true }
+}

@@ -66,3 +66,20 @@ pub fn[R] Rng::shuffle(self : Rng, items : Array[R]) -> Unit {
     items[j] = tmp
   }
 }
+
+///|
+/// The structural profile of each board game behind the unified engine.
+pub fn Engine::game_info(self : Engine) -> GameInfo {
+  match self.game_id() {
+    Go(_, _) =>
+      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+    Xiangqi =>
+      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+    Chess =>
+      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+    Gomoku(_) =>
+      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+    Othello =>
+      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+  }
+}

@@ -203,3 +203,14 @@ test "uno: reverse with two players keeps the turn" {
     assert_true(true, "scenario not sampled")
   }
 }
+
+///|
+test "uno: game_info metadata" {
+  let u = @uno.Uno::new(4, 1UL)
+  let info = u.game_info()
+  let (lo, hi) = info.players
+  assert_true(lo == 2 && hi == 8, "uno seats 2..=8")
+  assert_true(!info.perfect_information, "hands are hidden")
+  assert_true(info.has_chance, "shuffled deck")
+  assert_true(info.sequential, "turns are sequential")
+}

@@ -74,3 +74,10 @@ pub const ANTE : Int = 1
 ///|
 /// The minimum raise step above the current level.
 pub const MIN_RAISE : Int = 5
+
+///|
+/// The structural profile of five-card draw: 2..=6 players, hidden hands,
+/// a shuffled deck and strictly sequential betting.
+pub fn DrawPoker::game_info(_self : DrawPoker) -> @core.GameInfo {
+  { players: (2, 6), perfect_information: false, has_chance: true, sequential: true }
+}

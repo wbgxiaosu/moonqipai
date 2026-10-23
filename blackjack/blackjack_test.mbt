@@ -118,3 +118,13 @@ test "blackjack: acting after settlement is rejected" {
     Ok(_) => fail("no action after settlement")
   }
 }
+
+///|
+test "blackjack: game_info metadata" {
+  let b = @blackjack.Blackjack::new(1UL)
+  let info = b.game_info()
+  assert_true(!info.perfect_information, "hole card hidden")
+  assert_true(info.has_chance, "shuffled shoe")
+  let (lo, hi) = info.players
+  assert_true(lo == 2 && hi == 2, "player plus dealer")
+}

@@ -135,3 +135,13 @@ test "fivedraw: full six-player hand reaches a showdown" {
   assert_true(p.winner() >= 0, "showdown produced a winner")
   assert_true(p.pot() == 6, "pot was paid out")
 }
+
+///|
+test "fivedraw: game_info metadata" {
+  let p = @fivedraw.DrawPoker::new(5, 1UL)
+  let info = p.game_info()
+  let (lo, hi) = info.players
+  assert_true(lo == 2 && hi == 6, "draw poker seats 2..=6")
+  assert_true(!info.perfect_information, "hands are hidden")
+  assert_true(info.has_chance, "shuffled deck")
+}
