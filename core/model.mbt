@@ -7,6 +7,10 @@ pub(all) enum GameId {
   Xiangqi
   /// International chess, standard initial position.
   Chess
+  /// Free-style Gomoku with the given board size (2..=26).
+  Gomoku(Int)
+  /// Othello (Reversi), standard 8x8 initial position.
+  Othello
 } derive(Eq, Debug)
 
 ///|
@@ -46,11 +50,15 @@ pub fn Player::label(self : Player, game : GameId) -> String {
     Go(_, _) => "B"
     Xiangqi => "Red"
     Chess => "White"
+    Gomoku(_) => "B"
+    Othello => "Black"
   }
   let second = match game {
     Go(_, _) => "W"
     Xiangqi => "Black"
     Chess => "Black"
+    Gomoku(_) => "W"
+    Othello => "White"
   }
   match self {
     P1 => first

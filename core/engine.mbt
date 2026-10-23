@@ -6,17 +6,22 @@ priv enum Inner {
   Go(@moonbaduk.Game)
   Xiangqi(@xiangqi.Board, Array[@xiangqi.Board])
   Chess(@moonchess.Position, Array[@moonchess.Position])
+  Gomoku(@gomoku.Gomoku)
+  Othello(@othello.Othello)
 }
 
 ///|
 /// A running game behind the unified interface. Each variant delegates to
 /// the corresponding rules library: Go to `wbgxiaosu/moonbaduk`, Xiangqi to
-/// `wbgxiaosu/xiangqi`, chess to `L76148/moonchess`. All moves are given and
+/// `wbgxiaosu/xiangqi`, chess to `L76148/moonchess`, while Gomoku and
+/// Othello are this project's own engines. All moves are given and
 /// returned in the game's native text notation:
 ///
 /// - Go: GTP vertices such as `Q16`, or `pass` (letter `i` is skipped)
 /// - Xiangqi: ICCS coordinates such as `h2e2`
 /// - Chess: UCI coordinates such as `e2e4`, promotions as `e7e8q`
+/// - Gomoku: Go-style vertices such as `H8` (letter `i` is skipped)
+/// - Othello: vertices such as `D3`, or `pass` when no move exists
 pub struct Engine {
   priv mut inner : Inner
 }
@@ -28,6 +33,8 @@ pub fn Engine::make(id : GameId) -> Engine {
     Go(size, komi) => Inner::Go(@moonbaduk.Game::new(size, komi))
     Xiangqi => Inner::Xiangqi(@xiangqi.Board::initial(), [])
     Chess => Inner::Chess(@moonchess.Position::startpos(), [])
+    Gomoku(size) => Inner::Gomoku(@gomoku.Gomoku::new(size))
+    Othello => Inner::Othello(@othello.Othello::new())
   }
   { inner, }
 }
@@ -70,6 +77,8 @@ pub fn Engine::apply(self : Engine, mv : String) -> Result[Unit, EngineError] {
         Err(e) => Err(e)
       }
     }
+    Inner::Gomoku(g) => gomoku_apply(g, mv)
+    Inner::Othello(o) => othello_apply(o, mv)
   }
 }
 
@@ -80,6 +89,8 @@ pub fn Engine::legal_moves(self : Engine) -> Array[String] {
     Inner::Go(g) => go_legal_moves(g)
     Inner::Xiangqi(b, _) => xiangqi_legal_moves(b)
     Inner::Chess(p, _) => chess_legal_moves(p)
+    Inner::Gomoku(g) => gomoku_legal_moves(g)
+    Inner::Othello(o) => othello_legal_moves(o)
   }
 }
 
@@ -105,6 +116,8 @@ pub fn Engine::undo(self : Engine) -> Bool {
       } else {
         false
       }
+    Inner::Gomoku(g) => g.undo()
+    Inner::Othello(o) => o.undo()
   }
 }
 
@@ -120,6 +133,8 @@ pub fn Engine::turn(self : Engine) -> Player {
       }
     Inner::Xiangqi(b, _) => if b.side() is @xiangqi.Red { P1 } else { P2 }
     Inner::Chess(p, _) => if p.turn() is @moonchess.White { P1 } else { P2 }
+    Inner::Gomoku(g) => if g.turn() is @gomoku.Black { P1 } else { P2 }
+    Inner::Othello(o) => if o.turn() is @othello.Black { P1 } else { P2 }
   }
 }
 
@@ -136,6 +151,8 @@ pub fn Engine::outcome(self : Engine) -> Outcome? {
     Inner::Go(g) => go_outcome(g)
     Inner::Xiangqi(b, _) => xiangqi_outcome(b)
     Inner::Chess(p, _) => chess_outcome(p)
+    Inner::Gomoku(g) => gomoku_outcome(g)
+    Inner::Othello(o) => othello_outcome(o)
   }
 }
 
@@ -146,6 +163,8 @@ pub fn Engine::game_id(self : Engine) -> GameId {
     Inner::Go(g) => Go(g.size(), g.komi())
     Inner::Xiangqi(_, _) => Xiangqi
     Inner::Chess(_, _) => Chess
+    Inner::Gomoku(g) => Gomoku(g.size())
+    Inner::Othello(_) => Othello
   }
 }
 
@@ -156,6 +175,8 @@ pub fn Engine::render(self : Engine) -> String {
     Inner::Go(g) => g.board().render()
     Inner::Xiangqi(b, _) => b.render_board()
     Inner::Chess(p, _) => p.to_ascii()
+    Inner::Gomoku(g) => g.render()
+    Inner::Othello(o) => o.render()
   }
 }
 
@@ -182,5 +203,7 @@ pub fn Engine::move_count(self : Engine) -> Int {
     }
     Inner::Xiangqi(_, hist) => hist.length()
     Inner::Chess(_, hist) => hist.length()
+    Inner::Gomoku(g) => g.stone_count()
+    Inner::Othello(o) => o.counts().0 + o.counts().1
   }
 }

@@ -164,3 +164,51 @@ test "core: engine dispatch exposes each game id" {
   assert_str(@core.P1.label(go_id), "B", "go first player")
   assert_str(@core.P2.label(@core.Xiangqi), "Black", "xiangqi second player")
 }
+
+///|
+test "core: gomoku flows through the unified engine" {
+  let g = @core.Engine::make(@core.Gomoku(15))
+  assert_true(g.game_id() is @core.Gomoku(_), "gomoku id")
+  for mv in ["H8", "H9", "J8", "H10", "K8", "H11", "L8", "H12", "M8"] {
+    match g.apply(mv) {
+      Ok(_) => ()
+      Err(e) => fail("gomoku \{mv} rejected: \{e.message()}")
+    }
+  }
+  // black has four in a row on rank 8: M8 completes five
+  match g.outcome() {
+    Some(@core.Winner(p)) => assert_true(p is @core.P1, "black completes the line")
+    _ => fail("expected a winner")
+  }
+  assert_true(g.undo(), "undo through the engine")
+  assert_true(!g.is_over(), "game resumed")
+}
+
+///|
+test "core: othello flows through the unified engine" {
+  let o = @core.Engine::make(@core.Othello)
+  assert_true(o.game_id() is @core.Othello, "othello id")
+  for mv in ["D3", "C5", "F6"] {
+    match o.apply(mv) {
+      Ok(_) => ()
+      Err(e) => fail("othello \{mv} rejected: \{e.message()}")
+    }
+  }
+  assert_true(o.legal_moves().length() > 0, "the line leaves continuations")
+  // pass is accepted only when no move exists
+  match o.apply("pass") {
+    Err(@core.IllegalMove(_)) => ()
+    Err(e) => fail("expected IllegalMove, got \{e.message()}")
+    Ok(_) => fail("an illegal pass must not succeed")
+  }
+  assert_true(o.undo(), "undo works")
+}
+
+///|
+test "core: player labels cover all five board games" {
+  let g5 : @core.GameId = @core.Gomoku(15)
+  assert_str(@core.P1.label(g5), "B", "gomoku first player")
+  assert_str(@core.P2.label(g5), "W", "gomoku second player")
+  assert_str(@core.P1.label(@core.Othello), "Black", "othello first player")
+  assert_str(@core.P2.label(@core.Othello), "White", "othello second player")
+}

@@ -3,4 +3,6 @@ import {
   "L76148/moonchess",
   "wbgxiaosu/moonbaduk",
   "wbgxiaosu/xiangqi",
+  "wbgxiaosu/moonqipai/gomoku",
+  "wbgxiaosu/moonqipai/othello",
 }
