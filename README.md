@@ -1,63 +1,54 @@
 # moonqipai
 
-Unified board & card game rules foundation for MoonBit: **Go (Weiqi/Baduk), Xiangqi (Chinese chess), International Chess and generic poker** behind one engine interface.
+Unified board & card game rules foundation for MoonBit: **seven games behind shared abstractions** — Go, Xiangqi (Chinese chess), International Chess, Gomoku, Othello, Blackjack and Five-card Draw.
 
-This is a reusable infrastructure library, not a game. It gives tool builders — GUI clients, tournament servers, teaching software, AI harnesses, data pipelines — one consistent API for rules adjudication, legal-move enumeration, undo and result reporting across games.
+This is a reusable infrastructure library, not a game. It gives tool builders — GUI clients, tournament servers, teaching software, AI harnesses, data pipelines — one consistent model for rules adjudication, legal-action enumeration, undo, hidden-information views and result reporting across games.
 
-## Components
+## Game coverage
 
-| Package | What it provides | Backed by |
-|---|---|---|
-| `core` | Unified game model: `GameId`, `Player`, `Outcome`, `EngineError` and the `Engine` facade with `apply` / `legal_moves` / `undo` / `turn` / `is_over` / `outcome` / `render` | [wbgxiaosu/moonbaduk](https://mooncakes.io/docs/#/wbgxiaosu/moonbaduk) (Go), [wbgxiaosu/xiangqi](https://mooncakes.io/docs/#/wbgxiaosu/xiangqi) (Xiangqi), [L76148/moonchess](https://mooncakes.io/docs/#/L76148/moonchess) (chess) |
-| `cards` | Original generic poker: 52-card deck, seeded deterministic shuffle, dealing, 5-card evaluation and best-of-5..7 comparison (high card → straight flush) | — (original) |
+| Game | Package | Implementation | Type |
+|---|---|---|---|
+| Go (Weiqi/Baduk) | `core` engine | delegated to [wbgxiaosu/moonbaduk](https://mooncakes.io/docs/#/wbgxiaosu/moonbaduk) | turn-based, perfect info |
+| Xiangqi (Chinese chess) | `core` engine | delegated to [wbgxiaosu/xiangqi](https://mooncakes.io/docs/#/wbgxiaosu/xiangqi) | turn-based, perfect info |
+| International chess | `core` engine | delegated to [L76148/moonchess](https://mooncakes.io/docs/#/L76148/moonchess) | turn-based, perfect info |
+| Gomoku (free-style) | `gomoku` | **original** — 2..=26 boards, four-direction line scan, undo | turn-based, perfect info |
+| Othello (Reversi) | `othello` | **original** — eight-direction bracketing flips, pass flow, majority scoring | turn-based, perfect info |
+| Blackjack | `blackjack` | **original** — seeded shoe, dealer hole card hidden, 3:2 naturals, dealer-stands-on-17 | chance + hidden info |
+| Five-card draw | `fivedraw` | **original** — 2..=6 players, two betting rounds, discards, showdown | chance + hidden info + multi-player |
+| Generic poker evaluation | `cards` | **original** — 52-card deck, seeded splitmix64 shuffle, 5..7-card hand evaluation | utilities |
 
-Each game keeps its native text notation through the unified interface:
+Four of the seven games (plus the poker utilities) are original code written for this project; the three classical board-game rule cores are delegated to published mooncakes packages instead of being reimplemented.
 
-- Go — GTP vertices (`Q16`, `pass`; the letter `i` is skipped)
-- Xiangqi — ICCS coordinates (`h2e2`)
-- Chess — UCI coordinates (`e2e4`, promotions as `e7e8q`)
+## Shared abstractions
+
+- **`core.Engine`** — one facade for the five board games: `apply` / `legal_moves` / `undo` / `turn` / `is_over` / `outcome` / `render`, with per-game native notation (GTP vertices, ICCS, UCI, coordinates).
+- **`core.GameInfo`** — structural metadata in the spirit of OpenSpiel's game type: player-count range, perfect/imperfect information, chance involvement, sequential turns. Tools branch on this instead of hard-coding rules.
+- **`core.Rng`** — seeded splitmix64 source; every chance-driven game is fully reproducible from its seed.
+- **Hidden information** — engines only expose what the acting player may see: blackjack hides the dealer hole card until settlement, five-card draw exposes hands solely through `hand_of(seat)` for the seat's owner and publishes a textual action log for everyone else.
+- **`Outcome`** — normalised terminal results with record strings ("1-0") and game-conventional margins ("B+24.5"), plus structured settlement (payout multipliers in blackjack, pot collection in five-card draw).
 
 ## Usage
 
 ```moonbit
-// one interface, four games
+// one interface for all board games
 let c : @core.Engine = @core.Engine::make(@core.Chess)
 let _ = c.apply("e2e4")
 let moves : Array[String] = c.legal_moves()
 
-let g : @core.Engine = @core.Engine::make(@core.Go(19, 7.5))
-let _ = g.apply("Q16")
-let _ = g.apply("pass")
+// original gomoku
+let g : @gomoku.Gomoku = @gomoku.Gomoku::standard()
+let _ = g.play(7, 7)
 
-// terminal result in game-conventional notation
-let outcome : @core.Outcome? = c.outcome() // e.g. Winner(P2) → "0-1"
+// blackjack with a reproducible shoe
+let bj : @blackjack.Blackjack = @blackjack.Blackjack::new(42UL)
+let _ = bj.act(@blackjack.Hit)
 
-// poker
-let deck : @cards.Deck = @cards.Deck::shuffled(42UL) // deterministic
-let hand : Array[@cards.Card] = deck.deal(5)
-let value : @cards.HandValue? = @cards.evaluate_five(hand)
+// complete five-card draw hand, 2..=6 players
+let p : @fivedraw.DrawPoker = @fivedraw.DrawPoker::new(4, 7UL)
+let _ = p.bet(0, @fivedraw.Call)
 ```
 
-See `cmd/main` for a runnable example. The example binary is documentation only — the deliverable is the library.
-
-## Unified result strings
-
-| Outcome | Go | Xiangqi / Chess |
-|---|---|---|
-| first player wins | `B+24.5` (margin) | `1-0` |
-| second player wins | `W+7.5` (margin) | `0-1` |
-| draw | `0` | `1/2-1/2` |
-
-## Engine capabilities per game
-
-| Capability | Go | Xiangqi | Chess |
-|---|---|---|---|
-| legal-move enumeration | ✓ | ✓ | ✓ |
-| undo | ✓ | ✓ | ✓ |
-| terminal-state detection | double pass | checkmate / stalemate (a loss) | checkmate / stalemate / fifty-move rule |
-| scoring | Chinese area rules with komi | decisive only | decisive only |
-
-Xiangqi repetition adjudication and chess threefold-repetition / insufficient-material draws are not yet wired through the unified interface; the underlying libraries expose the needed primitives (Zobrist hashing, position history) for a future version.
+See `cmd/main` for a runnable example of every game family. The example binary is documentation only — the deliverable is the library.
 
 ## Building and testing
 
@@ -69,6 +60,12 @@ moon run cmd/main
 
 CI runs `moon check` and `moon test` on the wasm, wasm-gc and native backends.
 
+## Roadmap
+
+- Unified engine integration for gomoku/othello into `core.Engine` (they are standalone engines today);
+- more card games on the shared betting skeleton (stud, hearts);
+- simultaneous-action and repeated-play metadata extensions to `GameInfo`.
+
 ## Scope statement
 
-moonqipai is an original MoonBit codebase. The Go, Xiangqi and chess rule cores are delegated to the published mooncakes packages listed above (moonbaduk and xiangqi by the same author; moonchess by L76148, Apache-2.0) — moonqipai's contribution is the unified engine layer, the normalised outcome model and the poker module, all of which are new code written for this project. Rules semantics follow the public SGF FF[4], GTP v2, ICCS, UCI and FIDE/Xiangqi rule documents.
+moonqipai is an original MoonBit codebase. The Go, Xiangqi and chess rule cores are delegated to the published mooncakes packages listed above (moonbaduk and xiangqi by the same author; moonchess by L76148, Apache-2.0) — moonqipai's contribution is the unified engine layer, the normalised outcome model, the GameInfo/Rng abstractions, the poker utilities and four fully original game engines (gomoku, othello, blackjack, five-card draw). Rules semantics follow the public SGF FF[4], GTP v2, ICCS, UCI, FIDE/Xiangqi rule documents and standard casino rules.
