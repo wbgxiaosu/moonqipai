@@ -6,7 +6,7 @@ let go_cols : Array[Char] = "ABCDEFGHJKLMNOPQRSTUVWXYZ".to_array()
 ///|
 /// Converts a 0-based (row, col) with row 0 at the top to a GTP vertex
 /// such as `Q16`.
-pub fn go_vertex(size : Int, row : Int, col : Int) -> String {
+pub fn go_vertex(size : Int32, row : Int32, col : Int32) -> String {
   let buf = StringBuilder()
   buf.write_char(go_cols[col])
   buf.write_string("\{size - row}")
@@ -17,7 +17,7 @@ pub fn go_vertex(size : Int, row : Int, col : Int) -> String {
 /// Parses a GTP vertex (`Q16`) or `pass` into (row, col) coordinates with
 /// row 0 at the top. Returns `Some((-1, -1))` for a pass; `None` for
 /// malformed or out-of-range input.
-pub fn go_parse_vertex(size : Int, text : String) -> (Int, Int)? {
+pub fn go_parse_vertex(size : Int32, text : String) -> (Int32, Int32)? {
   let t = text.to_lower()
   if t == "pass" {
     return Some((-1, -1))
@@ -87,7 +87,7 @@ pub fn go_legal_moves(g : @moonbaduk.Game) -> Array[String] {
 /// The Go outcome once the game is over: area scoring converted to a
 /// `Score` outcome (or `Draw` for a jigo). `None` while still running.
 pub fn go_outcome(g : @moonbaduk.Game) -> Outcome? {
-  if !(g.is_over()) {
+  if !g.is_over() {
     return None
   }
   let score = g.final_score()

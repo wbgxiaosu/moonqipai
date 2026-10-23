@@ -3,9 +3,9 @@
 /// exposes it through [DrawPoker::hand_of] for the seat's owner.
 priv struct Seat {
   hand : Array[@cards.Card]
-  mut chips : Int
+  mut chips : Int32
   mut live : Bool
-  mut bet : Int
+  mut bet : Int32
 }
 
 ///|
@@ -18,29 +18,23 @@ pub struct DrawPoker {
   priv seats : Array[Seat]
   priv deck : @cards.Deck
   priv mut phase : Phase
-  priv mut turn : Int
+  priv mut turn : Int32
   /// The outstanding bet level to match.
-  priv mut level : Int
+  priv mut level : Int32
   /// Live seats that still owe an action before the round ends.
-  priv mut pending : Int
-  priv mut pot : Int
-  priv mut winner : Int
+  priv mut pending : Int32
+  priv mut pot : Int32
+  priv mut winner : Int32
   priv log : Array[String]
 }
 
 ///|
 /// Deals a hand for `players` (2..=6) seats from a seeded shuffle.
-pub fn DrawPoker::new(players : Int, seed : UInt64) -> DrawPoker {
-  let n = if players < 2 {
-    2
-  } else if players > 6 {
-    6
-  } else {
-    players
-  }
+pub fn DrawPoker::new(players : Int32, seed : UInt64) -> DrawPoker {
+  let n = if players < 2 { 2 } else if players > 6 { 6 } else { players }
   let seats : Array[Seat] = []
   for _ in 0..<n {
-    seats.push({ hand: [], chips: 100, live: true, bet: 0 })
+    seats.push({ hand: [], chips: 100, live: true, bet: 0, })
   }
   let deck = @cards.Deck::shuffled(seed)
   let p = {
@@ -67,7 +61,7 @@ pub fn DrawPoker::new(players : Int, seed : UInt64) -> DrawPoker {
 
 ///|
 /// Number of seats.
-pub fn DrawPoker::player_count(self : DrawPoker) -> Int {
+pub fn DrawPoker::player_count(self : DrawPoker) -> Int32 {
   self.seats.length()
 }
 
@@ -79,19 +73,19 @@ pub fn DrawPoker::phase(self : DrawPoker) -> Phase {
 
 ///|
 /// The seat whose action is expected.
-pub fn DrawPoker::turn(self : DrawPoker) -> Int {
+pub fn DrawPoker::turn(self : DrawPoker) -> Int32 {
   self.turn
 }
 
 ///|
 /// The outstanding bet level to match.
-pub fn DrawPoker::bet_level(self : DrawPoker) -> Int {
+pub fn DrawPoker::bet_level(self : DrawPoker) -> Int32 {
   self.level
 }
 
 ///|
 /// The pot size.
-pub fn DrawPoker::pot(self : DrawPoker) -> Int {
+pub fn DrawPoker::pot(self : DrawPoker) -> Int32 {
   self.pot
 }
 
@@ -103,14 +97,17 @@ pub fn DrawPoker::log(self : DrawPoker) -> Array[String] {
 
 ///|
 /// The winner's seat index, or -1 while the hand runs.
-pub fn DrawPoker::winner(self : DrawPoker) -> Int {
+pub fn DrawPoker::winner(self : DrawPoker) -> Int32 {
   self.winner
 }
 
 ///|
 /// The private hand of one seat — the *only* sanctioned way to read the
 /// hidden information, intended for the seat's owner.
-pub fn DrawPoker::hand_of(self : DrawPoker, seat : Int) -> Array[@cards.Card]? {
+pub fn DrawPoker::hand_of(
+  self : DrawPoker,
+  seat : Int32,
+) -> Array[@cards.Card]? {
   match self.seats.get(seat) {
     Some(s) => Some(s.hand)
     None => None
@@ -119,7 +116,7 @@ pub fn DrawPoker::hand_of(self : DrawPoker, seat : Int) -> Array[@cards.Card]? {
 
 ///|
 /// Whether a seat is still in the hand.
-pub fn DrawPoker::is_live(self : DrawPoker, seat : Int) -> Bool {
+pub fn DrawPoker::is_live(self : DrawPoker, seat : Int32) -> Bool {
   match self.seats.get(seat) {
     Some(s) => s.live
     None => false
@@ -128,7 +125,7 @@ pub fn DrawPoker::is_live(self : DrawPoker, seat : Int) -> Bool {
 
 ///|
 /// Chip count of a seat.
-pub fn DrawPoker::chips_of(self : DrawPoker, seat : Int) -> Int {
+pub fn DrawPoker::chips_of(self : DrawPoker, seat : Int32) -> Int32 {
   match self.seats.get(seat) {
     Some(s) => s.chips
     None => 0
@@ -136,7 +133,7 @@ pub fn DrawPoker::chips_of(self : DrawPoker, seat : Int) -> Int {
 }
 
 ///|
-fn DrawPoker::live_count(self : DrawPoker) -> Int {
+fn DrawPoker::live_count(self : DrawPoker) -> Int32 {
   let mut n = 0
   for s in self.seats {
     if s.live {
@@ -147,7 +144,7 @@ fn DrawPoker::live_count(self : DrawPoker) -> Int {
 }
 
 ///|
-fn DrawPoker::next_live_from(self : DrawPoker, start : Int) -> Int {
+fn DrawPoker::next_live_from(self : DrawPoker, start : Int32) -> Int32 {
   let n = self.seats.length()
   let mut i = start % n
   let mut steps = 0
@@ -174,7 +171,11 @@ pub fn DrawPoker::is_over(self : DrawPoker) -> Bool {
 
 ///|
 /// Applies a betting action for the given seat.
-pub fn DrawPoker::bet(self : DrawPoker, seat : Int, a : BetAction) -> Result[Unit, BetError] {
+pub fn DrawPoker::bet(
+  self : DrawPoker,
+  seat : Int32,
+  a : BetAction,
+) -> Result[Unit, BetError] {
   if !(self.phase is DealBetting) && !(self.phase is PostDrawBetting) {
     return Err(WrongPhase)
   }
@@ -182,7 +183,7 @@ pub fn DrawPoker::bet(self : DrawPoker, seat : Int, a : BetAction) -> Result[Uni
     return Err(UnknownSeat)
   }
   let s = self.seats[seat]
-  if !(s.live) {
+  if !s.live {
     return Err(AlreadyFolded)
   }
   if seat != self.turn {
@@ -237,7 +238,7 @@ pub fn DrawPoker::bet(self : DrawPoker, seat : Int, a : BetAction) -> Result[Uni
 
 ///|
 /// Consumes one pending action; a fold can end the hand outright.
-fn DrawPoker::settle_pending(self : DrawPoker, n : Int) -> Unit {
+fn DrawPoker::settle_pending(self : DrawPoker, n : Int32) -> Unit {
   self.pending -= n
   self.advance_turn()
   if self.live_count() <= 1 || self.pending <= 0 {
@@ -278,7 +279,11 @@ fn DrawPoker::settle_uncontested(self : DrawPoker) -> Unit {
 ///|
 /// Declares which cards to replace (indices into the seat's own hand,
 /// at most three). Only valid in the draw phase, on turn.
-pub fn DrawPoker::discard(self : DrawPoker, seat : Int, idx : Array[Int]) -> Result[Unit, BetError] {
+pub fn DrawPoker::discard(
+  self : DrawPoker,
+  seat : Int32,
+  idx : Array[Int32],
+) -> Result[Unit, BetError] {
   if !(self.phase is Draw) {
     return Err(WrongPhase)
   }
@@ -286,7 +291,7 @@ pub fn DrawPoker::discard(self : DrawPoker, seat : Int, idx : Array[Int]) -> Res
     return Err(UnknownSeat)
   }
   let s = self.seats[seat]
-  if !(s.live) {
+  if !s.live {
     return Err(AlreadyFolded)
   }
   if seat != self.turn {
@@ -328,7 +333,7 @@ pub fn DrawPoker::discard(self : DrawPoker, seat : Int, idx : Array[Int]) -> Res
 
 ///|
 /// Whether `seat` is the last live player in scan order.
-fn DrawPoker::last_live(self : DrawPoker, seat : Int) -> Bool {
+fn DrawPoker::last_live(self : DrawPoker, seat : Int32) -> Bool {
   for i in (seat + 1)..<self.seats.length() {
     if self.seats[i].live {
       return false
@@ -338,7 +343,7 @@ fn DrawPoker::last_live(self : DrawPoker, seat : Int) -> Bool {
 }
 
 ///|
-fn sort_descending(items : Array[Int]) -> Unit {
+fn sort_descending(items : Array[Int32]) -> Unit {
   for i in 1..<items.length() {
     let key = items[i]
     let mut j = i - 1

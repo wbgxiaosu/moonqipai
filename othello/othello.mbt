@@ -55,7 +55,7 @@ pub fn OthelloError::message(self : OthelloError) -> String {
 pub struct Othello {
   priv mut cells : Array[Disc]
   priv mut turn : Disc
-  priv mut passes : Int
+  priv mut passes : Int32
   priv undo_stack : Array[Array[Disc]]
 }
 
@@ -70,7 +70,7 @@ pub fn Othello::new() -> Othello {
   cells[3 * 8 + 4] = Black
   cells[4 * 8 + 3] = Black
   cells[4 * 8 + 4] = White
-  { cells, turn: Black, passes: 0, undo_stack: [] }
+  { cells, turn: Black, passes: 0, undo_stack: [], }
 }
 
 ///|
@@ -81,7 +81,7 @@ pub fn Othello::turn(self : Othello) -> Disc {
 
 ///|
 /// Reads a square; out-of-range reads yield `Empty`.
-pub fn Othello::get(self : Othello, row : Int, col : Int) -> Disc {
+pub fn Othello::get(self : Othello, row : Int32, col : Int32) -> Disc {
   if row < 0 || col < 0 || row > 7 || col > 7 {
     return Empty
   }
@@ -90,7 +90,7 @@ pub fn Othello::get(self : Othello, row : Int, col : Int) -> Disc {
 
 ///|
 /// Disc counts as (black, white).
-pub fn Othello::counts(self : Othello) -> (Int, Int) {
+pub fn Othello::counts(self : Othello) -> (Int32, Int32) {
   let mut b = 0
   let mut w = 0
   for d in self.cells {
@@ -105,8 +105,13 @@ pub fn Othello::counts(self : Othello) -> (Int, Int) {
 
 ///|
 /// The discs that a move at (row, col) would flip, empty when illegal.
-fn Othello::flips_for(self : Othello, row : Int, col : Int, who : Disc) -> Array[Int] {
-  let acc : Array[Int] = []
+fn Othello::flips_for(
+  self : Othello,
+  row : Int32,
+  col : Int32,
+  who : Disc,
+) -> Array[Int32] {
+  let acc : Array[Int32] = []
   if row < 0 || col < 0 || row > 7 || col > 7 {
     return acc
   }
@@ -114,12 +119,19 @@ fn Othello::flips_for(self : Othello, row : Int, col : Int, who : Disc) -> Array
     return acc
   }
   let opp = who.opponent()
-  let dirs : Array[(Int, Int)] = [
-    (0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1),
+  let dirs : Array[(Int32, Int32)] = [
+    (0, 1),
+    (0, -1),
+    (1, 0),
+    (-1, 0),
+    (1, 1),
+    (1, -1),
+    (-1, 1),
+    (-1, -1),
   ]
   for d in dirs {
     let (dr, dc) = d
-    let line : Array[Int] = []
+    let line : Array[Int32] = []
     let mut r = row + dr
     let mut c = col + dc
     while r >= 0 && c >= 0 && r < 8 && c < 8 && self.cells[r * 8 + c] == opp {
@@ -153,8 +165,8 @@ pub fn Othello::has_move(self : Othello) -> Bool {
 
 ///|
 /// All legal moves as (row, col) pairs in scan order.
-pub fn Othello::legal_moves(self : Othello) -> Array[(Int, Int)] {
-  let acc : Array[(Int, Int)] = []
+pub fn Othello::legal_moves(self : Othello) -> Array[(Int32, Int32)] {
+  let acc : Array[(Int32, Int32)] = []
   for r in 0..<8 {
     for c in 0..<8 {
       if self.flips_for(r, c, self.turn).length() > 0 {
@@ -184,7 +196,11 @@ fn Othello::full(self : Othello) -> Bool {
 
 ///|
 /// Places a disc for the side to move, flipping all bracketed lines.
-pub fn Othello::play(self : Othello, row : Int, col : Int) -> Result[Unit, OthelloError] {
+pub fn Othello::play(
+  self : Othello,
+  row : Int32,
+  col : Int32,
+) -> Result[Unit, OthelloError] {
   if self.is_over() {
     return Err(GameOver)
   }
@@ -245,7 +261,7 @@ pub fn Othello::undo(self : Othello) -> Bool {
 /// The winner once the game is over: `Some(Black/White)` by majority,
 /// `None` for a 32-32 draw, and `None` while the game is running.
 pub fn Othello::winner(self : Othello) -> Disc? {
-  if !(self.is_over()) {
+  if !self.is_over() {
     return None
   }
   let (b, w) = self.counts()

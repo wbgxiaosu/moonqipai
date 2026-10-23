@@ -50,13 +50,7 @@ pub fn Blackjack::new(seed : UInt64) -> Blackjack {
   let deck = @cards.Deck::shuffled(seed)
   let player = deck.deal(2)
   let dealer = deck.deal(2)
-  let b = {
-    deck,
-    player,
-    dealer,
-    done: false,
-    result: None,
-  }
+  let b = { deck, player, dealer, done: false, result: None, }
   // naturals settle immediately
   if hand_value(b.player) == 21 {
     if hand_value(b.dealer) == 21 {
@@ -73,7 +67,7 @@ pub fn Blackjack::new(seed : UInt64) -> Blackjack {
 ///|
 /// Point value of a hand: aces count 11 while the total stays <= 21,
 /// otherwise 1.
-pub fn hand_value(cards : Array[@cards.Card]) -> Int {
+pub fn hand_value(cards : Array[@cards.Card]) -> Int32 {
   let mut total = 0
   let mut aces = 0
   for c in cards {
@@ -102,7 +96,7 @@ pub fn Blackjack::player_hand(self : Blackjack) -> Array[@cards.Card] {
 
 ///|
 /// The player's point total.
-pub fn Blackjack::player_total(self : Blackjack) -> Int {
+pub fn Blackjack::player_total(self : Blackjack) -> Int32 {
   hand_value(self.player)
 }
 
@@ -187,5 +181,10 @@ pub fn Blackjack::act(self : Blackjack, a : Action) -> Result[Unit, String] {
 /// The structural profile of blackjack: two sides (player and dealer),
 /// hidden information (the hole card) and a shuffled shoe.
 pub fn Blackjack::game_info(_self : Blackjack) -> @core.GameInfo {
-  { players: (2, 2), perfect_information: false, has_chance: true, sequential: true }
+  {
+    players: (2, 2),
+    perfect_information: false,
+    has_chance: true,
+    sequential: true,
+  }
 }

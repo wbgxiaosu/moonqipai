@@ -10,7 +10,7 @@ pub(all) enum BetAction {
   /// Match the outstanding bet.
   Call
   /// Increase the outstanding bet to the given level.
-  Raise(Int)
+  Raise(Int32)
 } derive(Eq, Debug)
 
 ///|
@@ -24,7 +24,7 @@ pub extend BetAction with @moonbitlang/core/debug.Debug::{to_repr}
 pub(all) enum BetError {
   OutOfTurn
   UnknownSeat
-  AmountTooLow(Int)
+  AmountTooLow(Int32)
   AlreadyFolded
   WrongPhase
   BadDiscards
@@ -69,15 +69,20 @@ pub extend Phase with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// The fixed ante every player posts to see the deal.
-pub const ANTE : Int = 1
+pub const ANTE : Int32 = 1
 
 ///|
 /// The minimum raise step above the current level.
-pub const MIN_RAISE : Int = 5
+pub const MIN_RAISE : Int32 = 5
 
 ///|
 /// The structural profile of five-card draw: 2..=6 players, hidden hands,
 /// a shuffled deck and strictly sequential betting.
 pub fn DrawPoker::game_info(_self : DrawPoker) -> @core.GameInfo {
-  { players: (2, 6), perfect_information: false, has_chance: true, sequential: true }
+  {
+    players: (2, 6),
+    perfect_information: false,
+    has_chance: true,
+    sequential: true,
+  }
 }

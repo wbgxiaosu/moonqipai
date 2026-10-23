@@ -59,7 +59,11 @@ test "core: go alternation, pass and scoring through the engine" {
     }
     _ => fail("expected a scored outcome")
   }
-  assert_str(e.outcome().unwrap().describe(@core.Go(5, 0.5)), "W+0.5", "describe")
+  assert_str(
+    e.outcome().unwrap().describe(@core.Go(5, 0.5)),
+    "W+0.5",
+    "describe",
+  )
 }
 
 ///|
@@ -177,7 +181,8 @@ test "core: gomoku flows through the unified engine" {
   }
   // black has four in a row on rank 8: M8 completes five
   match g.outcome() {
-    Some(@core.Winner(p)) => assert_true(p is @core.P1, "black completes the line")
+    Some(@core.Winner(p)) =>
+      assert_true(p is @core.P1, "black completes the line")
     _ => fail("expected a winner")
   }
   assert_true(g.undo(), "undo through the engine")

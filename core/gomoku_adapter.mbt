@@ -6,7 +6,7 @@ let gomoku_cols : Array[Char] = "ABCDEFGHJKLMNOPQRSTUVWXYZ".to_array()
 ///|
 /// Converts 0-based (row, col) with row 0 at the top to a vertex such as
 /// `H8`.
-pub fn gomoku_vertex(size : Int, row : Int, col : Int) -> String {
+pub fn gomoku_vertex(size : Int32, row : Int32, col : Int32) -> String {
   let buf = StringBuilder()
   buf.write_char(gomoku_cols[col])
   buf.write_string("\{size - row}")
@@ -16,7 +16,7 @@ pub fn gomoku_vertex(size : Int, row : Int, col : Int) -> String {
 ///|
 /// Parses a Gomoku vertex (`H8`); returns `None` for malformed or
 /// out-of-range input.
-pub fn gomoku_parse_vertex(size : Int, text : String) -> (Int, Int)? {
+pub fn gomoku_parse_vertex(size : Int32, text : String) -> (Int32, Int32)? {
   let t = text.to_lower()
   if t.length() < 2 {
     return None
@@ -49,7 +49,10 @@ pub fn gomoku_parse_vertex(size : Int, text : String) -> (Int, Int)? {
 
 ///|
 /// Applies a Gomoku vertex move.
-pub fn gomoku_apply(g : @gomoku.Gomoku, mv : String) -> Result[Unit, EngineError] {
+pub fn gomoku_apply(
+  g : @gomoku.Gomoku,
+  mv : String,
+) -> Result[Unit, EngineError] {
   let size = g.size()
   match gomoku_parse_vertex(size, mv) {
     None => Err(UnknownMove(mv))
@@ -77,7 +80,7 @@ pub fn gomoku_legal_moves(g : @gomoku.Gomoku) -> Array[String] {
 /// The Gomoku outcome: the line-maker wins, a full board without a line
 /// is a draw.
 pub fn gomoku_outcome(g : @gomoku.Gomoku) -> Outcome? {
-  if !(g.is_over()) {
+  if !g.is_over() {
     return None
   }
   match g.winner() {

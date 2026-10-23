@@ -58,7 +58,10 @@ test "fivedraw: fold can end the hand uncontested" {
   assert_true(p.bet(1, @fivedraw.Fold) is Ok(_), "p1 folds")
   assert_true(p.is_over(), "one player left: hand over")
   assert_true(p.winner() == 0, "p0 wins uncontested")
-  assert_true(p.chips_of(0) == 100 - @fivedraw.ANTE + p.pot() - 5, "pot collected")
+  assert_true(
+    p.chips_of(0) == 100 - @fivedraw.ANTE + p.pot() - 5,
+    "pot collected",
+  )
 }
 
 ///|
@@ -81,7 +84,10 @@ test "fivedraw: draw phase replaces cards then showdown" {
   assert_true(p.winner() >= 0, "a winner was decided")
   // the winner collected the pot (two antes, no raises)
   let w = p.winner()
-  assert_true(p.chips_of(w) == 100 - @fivedraw.ANTE + 2, "winner holds stake plus pot")
+  assert_true(
+    p.chips_of(w) == 100 - @fivedraw.ANTE + 2,
+    "winner holds stake plus pot",
+  )
 }
 
 ///|

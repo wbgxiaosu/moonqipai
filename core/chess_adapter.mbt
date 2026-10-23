@@ -1,6 +1,6 @@
 ///|
 /// The halfmove clock limit of the fifty-move rule (100 half-moves).
-pub const FIFTY_MOVE_LIMIT : Int = 100
+pub const FIFTY_MOVE_LIMIT : Int32 = 100
 
 ///|
 /// Applies a UCI move (`e2e4`, promotion `e7e8q`) to a chess position,
@@ -23,7 +23,7 @@ pub fn chess_apply(
     }
   }
   match found {
-    None => {
+    None =>
       // distinguish syntax errors from illegal moves
       match @moonchess.Square::parse(text[0:2].to_owned()) {
         Some(_) =>
@@ -33,7 +33,6 @@ pub fn chess_apply(
           }
         None => Err(UnknownMove(mv))
       }
-    }
     Some(m) => Ok(p.make_move(m))
   }
 }
@@ -56,7 +55,13 @@ pub fn chess_outcome(p : @moonchess.Position) -> Outcome? {
   let legal = p.legal_moves()
   if legal.length() == 0 {
     if p.in_check(p.turn()) {
-      return Some(if p.turn() is @moonchess.White { Winner(P2) } else { Winner(P1) })
+      return Some(
+        if p.turn() is @moonchess.White {
+          Winner(P2)
+        } else {
+          Winner(P1)
+        },
+      )
     }
     return Some(Draw) // stalemate
   }

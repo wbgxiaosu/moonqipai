@@ -3,7 +3,7 @@
 pub(all) enum Action {
   /// Play the hand card at the given index; for wild cards a colour must
   /// be chosen.
-  Play(Int, Color?)
+  Play(Int32, Color?)
   /// Draw one card. If the drawn card is playable, the player may then
   /// play it via [PlayDrawn] or hold via [Hold].
   Draw

@@ -20,7 +20,7 @@ pub extend HandRank with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Numeric strength of the category; larger beats smaller.
-pub fn HandRank::strength(self : HandRank) -> Int {
+pub fn HandRank::strength(self : HandRank) -> Int32 {
   match self {
     HighCard => 0
     Pair => 1
@@ -57,7 +57,7 @@ pub fn HandRank::name(self : HandRank) -> String {
 /// the quads in four of a kind).
 pub(all) struct HandValue {
   rank : HandRank
-  tiebreak : Array[Int]
+  tiebreak : Array[Int32]
 } derive(Eq, Debug)
 
 ///|
@@ -68,7 +68,7 @@ pub extend HandValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Returns `Some((-1 | 0 | 1))` as `self` loses/ties/wins against `other`.
-pub fn HandValue::compare(self : HandValue, other : HandValue) -> Int {
+pub fn HandValue::compare(self : HandValue, other : HandValue) -> Int32 {
   let a = self.rank.strength()
   let b = other.rank.strength()
   if a != b {
@@ -99,7 +99,7 @@ pub fn evaluate_five(cards : Array[Card]) -> HandValue? {
   if cards.length() != 5 {
     return None
   }
-  let values : Array[Int] = []
+  let values : Array[Int32] = []
   let mut flush = true
   let first_suit = cards[0].suit
   for c in cards {
@@ -109,8 +109,8 @@ pub fn evaluate_five(cards : Array[Card]) -> HandValue? {
     }
   }
   // counts per rank value 2..=14
-  let counts : Array[Int] = []
-  for _ in 0..=14 {
+  let counts : Array[Int32] = []
+  for _ in 0..<=14 {
     counts.push(0)
   }
   for v in values {
@@ -128,8 +128,8 @@ pub fn evaluate_five(cards : Array[Card]) -> HandValue? {
   // low so pairs and kickers come out sorted descending
   let mut quad = 0
   let mut trip = 0
-  let pairs : Array[Int] = []
-  let kickers : Array[Int] = []
+  let pairs : Array[Int32] = []
+  let kickers : Array[Int32] = []
   for k in 0..<13 {
     let v = 14 - k
     match counts[v] {
@@ -141,40 +141,40 @@ pub fn evaluate_five(cards : Array[Card]) -> HandValue? {
     }
   }
   if straight_high > 0 && flush {
-    return Some({ rank: StraightFlush, tiebreak: [straight_high] })
+    return Some({ rank: StraightFlush, tiebreak: [straight_high], })
   }
   if quad > 0 {
-    return Some({ rank: FourOfAKind, tiebreak: [quad, kickers[0]] })
+    return Some({ rank: FourOfAKind, tiebreak: [quad, kickers[0]], })
   }
   if trip > 0 && pairs.length() > 0 {
-    return Some({ rank: FullHouse, tiebreak: [trip, pairs[0]] })
+    return Some({ rank: FullHouse, tiebreak: [trip, pairs[0]], })
   }
   if flush {
-    return Some({ rank: Flush, tiebreak: sorted })
+    return Some({ rank: Flush, tiebreak: sorted, })
   }
   if straight_high > 0 {
-    return Some({ rank: Straight, tiebreak: [straight_high] })
+    return Some({ rank: Straight, tiebreak: [straight_high], })
   }
   if trip > 0 {
     let tb = [trip]
     for k in kickers {
       tb.push(k)
     }
-    return Some({ rank: ThreeOfAKind, tiebreak: tb })
+    return Some({ rank: ThreeOfAKind, tiebreak: tb, })
   }
   if pairs.length() >= 2 {
     let hi = if pairs[0] > pairs[1] { pairs[0] } else { pairs[1] }
     let lo = if pairs[0] > pairs[1] { pairs[1] } else { pairs[0] }
-    return Some({ rank: TwoPair, tiebreak: [hi, lo, kickers[0]] })
+    return Some({ rank: TwoPair, tiebreak: [hi, lo, kickers[0]], })
   }
   if pairs.length() == 1 {
     let tb = [pairs[0]]
     for k in kickers {
       tb.push(k)
     }
-    return Some({ rank: Pair, tiebreak: tb })
+    return Some({ rank: Pair, tiebreak: tb, })
   }
-  Some({ rank: HighCard, tiebreak: sorted })
+  Some({ rank: HighCard, tiebreak: sorted, })
 }
 
 ///|
@@ -198,9 +198,7 @@ pub fn evaluate_best(cards : Array[Card]) -> HandValue? {
       Some(hv) =>
         match best {
           None => best = Some(hv)
-          Some(b) => if hv.beats(b) {
-            best = Some(hv)
-          }
+          Some(b) => if hv.beats(b) { best = Some(hv) }
         }
       None => ()
     }
@@ -210,7 +208,7 @@ pub fn evaluate_best(cards : Array[Card]) -> HandValue? {
 
 ///|
 /// Whether five strictly descending values form a consecutive run.
-fn is_run(sorted_desc : Array[Int]) -> Bool {
+fn is_run(sorted_desc : Array[Int32]) -> Bool {
   for i in 0..<4 {
     if sorted_desc[i] != sorted_desc[i + 1] + 1 {
       return false
@@ -221,9 +219,9 @@ fn is_run(sorted_desc : Array[Int]) -> Bool {
 
 ///|
 /// Whether the values contain A-2-3-4-5 (the wheel).
-fn has_wheel(values : Array[Int]) -> Bool {
+fn has_wheel(values : Array[Int32]) -> Bool {
   let seen : Array[Bool] = []
-  for _ in 0..=14 {
+  for _ in 0..<=14 {
     seen.push(false)
   }
   for v in values {
@@ -233,7 +231,7 @@ fn has_wheel(values : Array[Int]) -> Bool {
 }
 
 ///|
-fn sorted_desc(values : Array[Int]) -> Array[Int] {
+fn sorted_desc(values : Array[Int32]) -> Array[Int32] {
   let acc = values.copy()
   // insertion sort: n <= 7
   for i in 1..<acc.length() {
@@ -250,10 +248,10 @@ fn sorted_desc(values : Array[Int]) -> Array[Int] {
 
 ///|
 /// All k-element index combinations of 0..n-1, in lexicographic order.
-fn combinations(n : Int, k : Int) -> Array[Array[Int]] {
-  let acc : Array[Array[Int]] = []
-  let cur : Array[Int] = []
-  fn rec(start : Int) -> Unit {
+fn combinations(n : Int32, k : Int32) -> Array[Array[Int32]] {
+  let acc : Array[Array[Int32]] = []
+  let cur : Array[Int32] = []
+  fn rec(start : Int32) -> Unit {
     if cur.length() == k {
       acc.push(cur.copy())
       return

@@ -5,7 +5,7 @@
 pub(all) struct GameInfo {
   /// Number of sides that participate: (min, max). Fixed games have
   /// min == max; e.g. Go is (2, 2), five-card draw poker is (2, 6).
-  players : (Int, Int)
+  players : (Int32, Int32)
   /// Whether every participant sees the full position (Go, Gomoku,
   /// Othello, Xiangqi, chess) or some information is hidden (poker,
   /// blackjack).
@@ -34,7 +34,7 @@ pub struct Rng {
 ///|
 /// Creates a random source from a seed.
 pub fn Rng::new(seed : UInt64) -> Rng {
-  { state: seed }
+  { state: seed, }
 }
 
 ///|
@@ -50,8 +50,8 @@ pub fn Rng::next_u64(self : Rng) -> UInt64 {
 
 ///|
 /// Produces the next uniform value in `0 ..< bound` (must be positive).
-pub fn Rng::below(self : Rng, bound : Int) -> Int {
-  (self.next_u64() % (bound.to_uint64())).to_int()
+pub fn Rng::below(self : Rng, bound : Int32) -> Int32 {
+  (self.next_u64() % bound.to_uint64()).to_int()
 }
 
 ///|
@@ -72,14 +72,39 @@ pub fn[R] Rng::shuffle(self : Rng, items : Array[R]) -> Unit {
 pub fn Engine::game_info(self : Engine) -> GameInfo {
   match self.game_id() {
     Go(_, _) =>
-      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+      {
+        players: (2, 2),
+        perfect_information: true,
+        has_chance: false,
+        sequential: true,
+      }
     Xiangqi =>
-      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+      {
+        players: (2, 2),
+        perfect_information: true,
+        has_chance: false,
+        sequential: true,
+      }
     Chess =>
-      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+      {
+        players: (2, 2),
+        perfect_information: true,
+        has_chance: false,
+        sequential: true,
+      }
     Gomoku(_) =>
-      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+      {
+        players: (2, 2),
+        perfect_information: true,
+        has_chance: false,
+        sequential: true,
+      }
     Othello =>
-      { players: (2, 2), perfect_information: true, has_chance: false, sequential: true }
+      {
+        players: (2, 2),
+        perfect_information: true,
+        has_chance: false,
+        sequential: true,
+      }
   }
 }

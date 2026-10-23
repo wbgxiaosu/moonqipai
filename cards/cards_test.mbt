@@ -28,10 +28,7 @@ test "cards: parse single cards and card lists" {
   assert_true_msg(@cards.Card::parse("A") is None, "too short rejected")
   let many = @cards.Card::parse_many("As Kd 9c Th 2h").unwrap()
   assert_eq_actual(many.length().to_string(), "5", "five cards parsed")
-  assert_true_msg(
-    @cards.Card::parse_many("As Xx") is None,
-    "bad list rejected",
-  )
+  assert_true_msg(@cards.Card::parse_many("As Xx") is None, "bad list rejected")
 }
 
 ///|
@@ -99,7 +96,11 @@ test "cards: dealing respects order and shortage" {
     }
   }
   let rest = d.deal(60)
-  assert_eq_actual(rest.length().to_string(), "42", "shortage yields the remainder")
+  assert_eq_actual(
+    rest.length().to_string(),
+    "42",
+    "shortage yields the remainder",
+  )
   d.reset()
   assert_eq_actual(d.remaining().to_string(), "52", "reset restores the deck")
 }
@@ -123,7 +124,11 @@ test "cards: five-card hand categories" {
     "straight flush",
     "royal flush",
   )
-  assert_eq_actual(ev("As 2s 3s 4s 5s").rank.name(), "straight flush", "wheel SF")
+  assert_eq_actual(
+    ev("As 2s 3s 4s 5s").rank.name(),
+    "straight flush",
+    "wheel SF",
+  )
   assert_eq_actual(ev("9c 9d 9h 9s 2c").rank.name(), "four of a kind", "quads")
   assert_eq_actual(ev("9c 9d 9h 2s 2c").rank.name(), "full house", "full house")
   assert_eq_actual(ev("Ah Jh 9h 5h 2h").rank.name(), "flush", "flush")
@@ -148,10 +153,7 @@ test "cards: hand comparisons" {
     ev("Ac Kd Qh Js Td").beats(ev("7c 7d 7h Ks 2c")),
     "straight > trips",
   )
-  assert_true_msg(
-    ev("2c 3d 4h 5s 6d").beats(ev("Ad 2c 3h 4s 5d")),
-    "2-6 > A-5",
-  )
+  assert_true_msg(ev("2c 3d 4h 5s 6d").beats(ev("Ad 2c 3h 4s 5d")), "2-6 > A-5")
   assert_true_msg(
     ev("Ah Jh 9h 5h 2h").beats(ev("Kh Qh 9h 5h 2h")),
     "A-high flush",

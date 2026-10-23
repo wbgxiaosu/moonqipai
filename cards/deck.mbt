@@ -4,7 +4,7 @@
 /// seeded splitmix64 Fisher-Yates shuffle so any deal can be reproduced.
 pub struct Deck {
   priv cards : Array[Card]
-  priv mut next : Int
+  priv mut next : Int32
 }
 
 ///|
@@ -14,10 +14,10 @@ pub fn Deck::standard52() -> Deck {
   let cards : Array[Card] = []
   for suit in Suit::all() {
     for rank in Rank::all() {
-      cards.push({ suit, rank })
+      cards.push({ suit, rank, })
     }
   }
-  { cards, next: 0 }
+  { cards, next: 0, }
 }
 
 ///|
@@ -53,14 +53,14 @@ fn splitmix64(state : UInt64) -> (UInt64, UInt64) {
 
 ///|
 /// The number of cards left to deal.
-pub fn Deck::remaining(self : Deck) -> Int {
+pub fn Deck::remaining(self : Deck) -> Int32 {
   self.cards.length() - self.next
 }
 
 ///|
 /// Deals up to `n` cards from the top. Returns fewer than `n` cards only
 /// when the deck runs out.
-pub fn Deck::deal(self : Deck, n : Int) -> Array[Card] {
+pub fn Deck::deal(self : Deck, n : Int32) -> Array[Card] {
   let acc : Array[Card] = []
   let mut count = 0
   while count < n && self.next < self.cards.length() {

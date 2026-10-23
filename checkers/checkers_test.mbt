@@ -17,7 +17,7 @@ test "checkers: starting position" {
 }
 
 ///|
-fn count_kinds(c : @checkers.Checkers) -> (Int, Int) {
+fn count_kinds(c : @checkers.Checkers) -> (Int32, Int32) {
   let moves = c.legal_moves()
   let mut steps = 0
   let mut jumps = 0
@@ -46,7 +46,7 @@ test "checkers: captures are mandatory" {
   // mandatory-capture via a constructed midgame through legal play
   // until a jump appears in legal_moves.
   let mut steps = 0
-  while !(c.is_over()) && steps < 60 {
+  while !c.is_over() && steps < 60 {
     let moves = c.legal_moves()
     let mut has_jump = false
     for m in moves {
@@ -85,14 +85,14 @@ test "checkers: piece must belong to the mover" {
   // white piece square in the start position: (5,0) = 40
   let white_sq = 40
   assert_true(c.get(white_sq) is @checkers.White, "white piece there")
-  match c.play({ from: white_sq, to: white_sq + 100, captures: [] }) {
+  match c.play({ from: white_sq, to: white_sq + 100, captures: [], }) {
     Err(_) => ()
     Ok(_) => fail("illegal move must fail")
   }
   // a legal black piece moved to an occupied or wrong square fails
   let black_sq = 21
   if c.get(black_sq) is @checkers.Black {
-    match c.play({ from: black_sq, to: black_sq + 1, captures: [] }) {
+    match c.play({ from: black_sq, to: black_sq + 1, captures: [], }) {
       Err(_) => ()
       Ok(_) => fail("moving onto a light square is not a move")
     }
@@ -106,7 +106,7 @@ test "checkers: crowning reaches the far rank" {
   let c = @checkers.Checkers::new()
   let mut crowned = false
   let mut steps = 0
-  while !(c.is_over()) && steps < 200 {
+  while !c.is_over() && steps < 200 {
     let moves = c.legal_moves()
     if moves.length() == 0 {
       break

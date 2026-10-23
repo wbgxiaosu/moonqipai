@@ -55,11 +55,11 @@ fn main {
   // UNO: action-card game with hidden hands
   let u = @uno.Uno::new(3, 42UL)
   let mut steps = 0
-  while !(u.is_over()) && steps < 60 {
+  while !u.is_over() && steps < 60 {
     let seat = u.turn()
     let hand = u.hand_of(seat).unwrap()
     let mut played = false
-    if !(u.drawn_pending()) {
+    if !u.drawn_pending() {
       for i in 0..<hand.length() {
         let card = hand[i]
         let choice = if card.kind is @uno.Wild || card.kind is @uno.WildDrawFour {
@@ -76,10 +76,8 @@ fn main {
       if !played {
         let _ = u.act(seat, @uno.Draw)
       }
-    } else {
-      if u.act(seat, @uno.PlayDrawn(Some(@uno.Red))) is Err(_) {
-        let _ = u.act(seat, @uno.Hold)
-      }
+    } else if u.act(seat, @uno.PlayDrawn(Some(@uno.Red))) is Err(_) {
+      let _ = u.act(seat, @uno.Hold)
     }
     steps += 1
   }

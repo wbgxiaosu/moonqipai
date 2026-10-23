@@ -26,7 +26,7 @@ test "gomoku: vertical and diagonal detection" {
   // vertical: B r0c0, W r9c9, B r1c0, W r9c8, B r2c0, W r9c7, B r3c0,
   // W r9c6, B r4c0 wins on the 5th
   let g = @gomoku.Gomoku::standard()
-  let seq : Array[(Int, Int, Int, Int)] = [
+  let seq : Array[(Int32, Int32, Int32, Int32)] = [
     (0, 0, 9, 9),
     (1, 0, 9, 8),
     (2, 0, 9, 7),
@@ -78,7 +78,18 @@ test "gomoku: draw on a full board" {
   // alternating colours, so test the draw path on a synthetic 3x3:
   // 9 stones, max line length 3, board fills with no winner.
   let g = @gomoku.Gomoku::new(3)
-  for m in [(0, 0), (0, 1), (1, 0), (0, 2), (2, 0), (1, 1), (1, 2), (2, 2), (2, 1)] {
+  for
+    m in [
+      (0, 0),
+      (0, 1),
+      (1, 0),
+      (0, 2),
+      (2, 0),
+      (1, 1),
+      (1, 2),
+      (2, 2),
+      (2, 1),
+    ] {
     let (r, c) = m
     assert_true(g.play(r, c) is Ok(_), "move \{r},\{c}")
   }

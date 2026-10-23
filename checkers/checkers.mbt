@@ -25,10 +25,10 @@ pub fn Man::opponent(self : Man) -> Man {
 /// A single move: origin square, destination square, and the intermediate
 /// squares of a jump chain (empty for a simple diagonal step).
 pub(all) struct Move {
-  from : Int
-  to : Int
+  from : Int32
+  to : Int32
   /// Captured square indices in chain order.
-  captures : Array[Int]
+  captures : Array[Int32]
 } derive(Eq, Debug)
 
 ///|
@@ -82,9 +82,9 @@ pub struct Checkers {
   priv mut kings : Array[Bool]
   priv mut turn : Man
   /// During a jump chain: the square of the piece that must keep jumping.
-  priv mut chain : Int
-  priv undo_stack : Array[(Array[Man], Array[Bool], Man, Int)]
-  priv mut move_count : Int
+  priv mut chain : Int32
+  priv undo_stack : Array[(Array[Man], Array[Bool], Man, Int32)]
+  priv mut move_count : Int32
 }
 
 ///|
@@ -106,12 +106,12 @@ pub fn Checkers::new() -> Checkers {
     cells.push(m)
     kings.push(false)
   }
-  { cells, kings, turn: Black, chain: -1, undo_stack: [], move_count: 0 }
+  { cells, kings, turn: Black, chain: -1, undo_stack: [], move_count: 0, }
 }
 
 ///|
 /// Reads a square.
-pub fn Checkers::get(self : Checkers, index : Int) -> Man {
+pub fn Checkers::get(self : Checkers, index : Int32) -> Man {
   if index < 0 || index > 63 {
     return Empty
   }
@@ -120,7 +120,7 @@ pub fn Checkers::get(self : Checkers, index : Int) -> Man {
 
 ///|
 /// Whether the piece on a square is crowned.
-pub fn Checkers::is_king(self : Checkers, index : Int) -> Bool {
+pub fn Checkers::is_king(self : Checkers, index : Int32) -> Bool {
   if index < 0 || index > 63 {
     return false
   }
@@ -141,12 +141,12 @@ pub fn Checkers::jump_pending(self : Checkers) -> Bool {
 
 ///|
 /// Number of actions played so far.
-pub fn Checkers::move_count(self : Checkers) -> Int {
+pub fn Checkers::move_count(self : Checkers) -> Int32 {
   self.move_count
 }
 
 ///|
-fn dark(index : Int) -> Bool {
+fn dark(index : Int32) -> Bool {
   let r = index / 8
   let c = index % 8
   (r + c) % 2 == 1
@@ -154,7 +154,7 @@ fn dark(index : Int) -> Bool {
 
 ///|
 /// Piece colour sign: black pieces move down the board (increasing row).
-fn forward_delta(who : Man) -> Int {
+fn forward_delta(who : Man) -> Int32 {
   if who is Black {
     1
   } else {
@@ -199,12 +199,12 @@ pub fn Checkers::legal_moves(self : Checkers) -> Array[Move] {
 }
 
 ///|
-fn Checkers::steps_from(self : Checkers, i : Int) -> Array[Move] {
+fn Checkers::steps_from(self : Checkers, i : Int32) -> Array[Move] {
   let acc : Array[Move] = []
   let r = i / 8
   let c = i % 8
   let who = self.cells[i]
-  let dirs : Array[(Int, Int)] = if self.kings[i] {
+  let dirs : Array[(Int32, Int32)] = if self.kings[i] {
     [(1, 1), (1, -1), (-1, 1), (-1, -1)]
   } else {
     let f = forward_delta(who)
@@ -219,20 +219,20 @@ fn Checkers::steps_from(self : Checkers, i : Int) -> Array[Move] {
     }
     let t = nr * 8 + nc
     if self.cells[t] is Empty {
-      acc.push({ from: i, to: t, captures: [] })
+      acc.push({ from: i, to: t, captures: [], })
     }
   }
   acc
 }
 
 ///|
-fn Checkers::jumps_from(self : Checkers, i : Int) -> Array[Move] {
+fn Checkers::jumps_from(self : Checkers, i : Int32) -> Array[Move] {
   let acc : Array[Move] = []
   let r = i / 8
   let c = i % 8
   let who = self.cells[i]
   let opp = who.opponent()
-  let dirs : Array[(Int, Int)] = if self.kings[i] {
+  let dirs : Array[(Int32, Int32)] = if self.kings[i] {
     [(1, 1), (1, -1), (-1, 1), (-1, -1)]
   } else {
     let f = forward_delta(who)
@@ -250,7 +250,7 @@ fn Checkers::jumps_from(self : Checkers, i : Int) -> Array[Move] {
     let mid = mr * 8 + mc
     let land = lr * 8 + lc
     if self.cells[mid] == opp && self.cells[land] is Empty {
-      acc.push({ from: i, to: land, captures: [mid] })
+      acc.push({ from: i, to: land, captures: [mid], })
     }
   }
   acc
@@ -267,7 +267,7 @@ pub fn Checkers::is_over(self : Checkers) -> Bool {
 /// The winning colour once the game is over; `None` while running or on
 /// a blocked deadlock (which scores as a draw for tooling purposes).
 pub fn Checkers::winner(self : Checkers) -> Man? {
-  if !(self.is_over()) {
+  if !self.is_over() {
     return None
   }
   // count material: a blocked side with pieces still on the board is a
@@ -300,7 +300,9 @@ pub fn Checkers::play(self : Checkers, m : Move) -> Result[Unit, CheckersError] 
   let legal = self.legal_moves()
   let mut found : Move? = None
   for lm in legal {
-    if lm.from == m.from && lm.to == m.to && lm.captures.length() == m.captures.length() {
+    if lm.from == m.from &&
+      lm.to == m.to &&
+      lm.captures.length() == m.captures.length() {
       found = Some(lm)
     }
   }
@@ -322,7 +324,9 @@ pub fn Checkers::play(self : Checkers, m : Move) -> Result[Unit, CheckersError] 
       return Err(NotMovable)
     }
     Some(real) => {
-      self.undo_stack.push((self.cells.copy(), self.kings.copy(), self.turn, self.chain))
+      self.undo_stack.push(
+        (self.cells.copy(), self.kings.copy(), self.turn, self.chain),
+      )
       // move the piece
       self.cells[m.to] = self.cells[m.from]
       self.cells[m.from] = Empty
@@ -335,7 +339,7 @@ pub fn Checkers::play(self : Checkers, m : Move) -> Result[Unit, CheckersError] 
       }
       // crowning
       let row = m.to / 8
-      if !(self.kings[m.to]) {
+      if !self.kings[m.to] {
         if self.turn is Black && row == 7 {
           self.kings[m.to] = true
         }

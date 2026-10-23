@@ -2,13 +2,13 @@
 /// Identifiers for the games the unified engine layer covers.
 pub(all) enum GameId {
   /// Go (Weiqi/Baduk) with the given board size (2..=26) and komi.
-  Go(Int, Double)
+  Go(Int32, Double)
   /// Chinese chess (Xiangqi), standard initial position.
   Xiangqi
   /// International chess, standard initial position.
   Chess
   /// Free-style Gomoku with the given board size (2..=26).
-  Gomoku(Int)
+  Gomoku(Int32)
   /// Othello (Reversi), standard 8x8 initial position.
   Othello
 } derive(Eq, Debug)
@@ -139,4 +139,4 @@ pub const DEFAULT_KOMI : Double = 7.5
 
 ///|
 /// The default board size used when constructing Go positions.
-pub const DEFAULT_BOARD_SIZE : Int = 19
+pub const DEFAULT_BOARD_SIZE : Int32 = 19

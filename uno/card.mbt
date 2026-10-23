@@ -34,7 +34,7 @@ pub fn Color::symbol(self : Color) -> String {
 /// Card faces. `Number(n)` covers 0..=9; the action faces are Skip,
 /// Reverse and DrawTwo; the wild faces carry no printed colour.
 pub(all) enum Kind {
-  Number(Int)
+  Number(Int32)
   Skip
   Reverse
   DrawTwo

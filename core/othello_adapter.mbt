@@ -1,7 +1,7 @@
 ///|
 /// Converts 0-based (row, col) with row 0 at the top to an Othello
 /// vertex such as `D3`.
-pub fn othello_vertex(row : Int, col : Int) -> String {
+pub fn othello_vertex(row : Int32, col : Int32) -> String {
   let buf = StringBuilder()
   buf.write_char("ABCDEFGH".to_array()[col])
   buf.write_string("\{row + 1}")
@@ -10,7 +10,7 @@ pub fn othello_vertex(row : Int, col : Int) -> String {
 
 ///|
 /// Parses an Othello vertex (`D3`); returns `None` for malformed input.
-pub fn othello_parse_vertex(text : String) -> (Int, Int)? {
+pub fn othello_parse_vertex(text : String) -> (Int32, Int32)? {
   let t = text.to_lower()
   if t.length() != 2 {
     return None
@@ -36,7 +36,10 @@ pub fn othello_parse_vertex(text : String) -> (Int, Int)? {
 ///|
 /// Applies an Othello vertex move; `pass` is accepted only when the side
 /// to move has no legal move.
-pub fn othello_apply(o : @othello.Othello, mv : String) -> Result[Unit, EngineError] {
+pub fn othello_apply(
+  o : @othello.Othello,
+  mv : String,
+) -> Result[Unit, EngineError] {
   let t = mv.to_lower()
   if t == "pass" {
     match o.pass() {
@@ -80,11 +83,6 @@ pub fn othello_outcome(o : @othello.Othello) -> Outcome? {
       } else {
         Some(Winner(P2))
       }
-    None =>
-      if o.is_over() {
-        Some(Draw)
-      } else {
-        None
-      }
+    None => if o.is_over() { Some(Draw) } else { None }
   }
 }

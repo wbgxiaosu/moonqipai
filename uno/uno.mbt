@@ -13,32 +13,26 @@ pub struct Uno {
   priv hands : Array[Array[Card]]
   priv mut draw_pile : Array[Card]
   priv mut discard : Array[Card]
-  priv mut turn : Int
+  priv mut turn : Int32
   /// +1 for clockwise seat order, -1 for counter-clockwise.
-  priv mut direction : Int
+  priv mut direction : Int32
   priv mut active_color : Color
   priv mut active_face : Kind
   /// Set right after a draw that produced a playable card.
   priv mut drawn : Bool
-  priv mut winner : Int
+  priv mut winner : Int32
   priv log : Array[String]
   priv rng : @core.Rng
 }
 
 ///|
 /// The size of every player's starting hand.
-pub const STARTING_HAND : Int = 7
+pub const STARTING_HAND : Int32 = 7
 
 ///|
 /// Deals a game for `players` (2..=8) seats from a seeded shuffle.
-pub fn Uno::new(players : Int, seed : UInt64) -> Uno {
-  let n = if players < 2 {
-    2
-  } else if players > 8 {
-    8
-  } else {
-    players
-  }
+pub fn Uno::new(players : Int32, seed : UInt64) -> Uno {
+  let n = if players < 2 { 2 } else if players > 8 { 8 } else { players }
   let hands : Array[Array[Card]] = []
   for _ in 0..<n {
     hands.push([])
@@ -102,19 +96,19 @@ pub fn Uno::new(players : Int, seed : UInt64) -> Uno {
 /// Builds the standard 108-card deck.
 fn Uno::build_deck(self : Uno) -> Unit {
   for c in Color::all() {
-    self.draw_pile.push({ color: Some(c), kind: Number(0) })
+    self.draw_pile.push({ color: Some(c), kind: Number(0), })
     for _ in 0..<2 {
       for n in 1..<10 {
-        self.draw_pile.push({ color: Some(c), kind: Number(n) })
+        self.draw_pile.push({ color: Some(c), kind: Number(n), })
       }
-      self.draw_pile.push({ color: Some(c), kind: Skip })
-      self.draw_pile.push({ color: Some(c), kind: Reverse })
-      self.draw_pile.push({ color: Some(c), kind: DrawTwo })
+      self.draw_pile.push({ color: Some(c), kind: Skip, })
+      self.draw_pile.push({ color: Some(c), kind: Reverse, })
+      self.draw_pile.push({ color: Some(c), kind: DrawTwo, })
     }
   }
   for _ in 0..<4 {
-    self.draw_pile.push({ color: None, kind: Wild })
-    self.draw_pile.push({ color: None, kind: WildDrawFour })
+    self.draw_pile.push({ color: None, kind: Wild, })
+    self.draw_pile.push({ color: None, kind: WildDrawFour, })
   }
 }
 
@@ -130,23 +124,22 @@ fn Uno::take_from_pile(self : Uno) -> Card? {
   }
   match self.draw_pile.pop() {
     Some(c) => Some(c)
-    None => {
+    None =>
       // single-card deadlock: recycle the discard top is not allowed in
       // UNO; report exhaustion
       None
-    }
   }
 }
 
 ///|
 /// Number of seats.
-pub fn Uno::player_count(self : Uno) -> Int {
+pub fn Uno::player_count(self : Uno) -> Int32 {
   self.hands.length()
 }
 
 ///|
 /// The seat whose turn it is.
-pub fn Uno::turn(self : Uno) -> Int {
+pub fn Uno::turn(self : Uno) -> Int32 {
   self.turn
 }
 
@@ -170,7 +163,7 @@ pub fn Uno::drawn_pending(self : Uno) -> Bool {
 
 ///|
 /// The winner's seat index, or -1 while the game runs.
-pub fn Uno::winner(self : Uno) -> Int {
+pub fn Uno::winner(self : Uno) -> Int32 {
   self.winner
 }
 
@@ -182,7 +175,7 @@ pub fn Uno::log(self : Uno) -> Array[String] {
 
 ///|
 /// The private hand of one seat — readable only by the seat's owner.
-pub fn Uno::hand_of(self : Uno, seat : Int) -> Array[Card]? {
+pub fn Uno::hand_of(self : Uno, seat : Int32) -> Array[Card]? {
   match self.hands.get(seat) {
     Some(h) => Some(h)
     None => None
@@ -205,14 +198,14 @@ pub fn Uno::is_over(self : Uno) -> Bool {
 }
 
 ///|
-fn Uno::next_seat(self : Uno, from : Int, step : Int) -> Int {
+fn Uno::next_seat(self : Uno, from : Int32, step : Int32) -> Int32 {
   let n = self.hands.length()
   ((from + step * self.direction) % n + n) % n
 }
 
 ///|
 /// Whether the game has ended; the first empty hand wins.
-fn Uno::check_win(self : Uno, seat : Int) -> Bool {
+fn Uno::check_win(self : Uno, seat : Int32) -> Bool {
   if self.hands[seat].length() == 0 {
     self.winner = seat
     return true
@@ -222,7 +215,12 @@ fn Uno::check_win(self : Uno, seat : Int) -> Bool {
 
 ///|
 /// Applies one card's effects and advances the turn.
-fn Uno::apply_card(self : Uno, seat : Int, card : Card, chosen : Color?) -> Unit {
+fn Uno::apply_card(
+  self : Uno,
+  seat : Int32,
+  card : Card,
+  chosen : Color?,
+) -> Unit {
   self.discard.push(card)
   self.log.push("p\{seat} plays \{card.text()}")
   match card.kind {
@@ -305,7 +303,7 @@ fn Uno::apply_card(self : Uno, seat : Int, card : Card, chosen : Color?) -> Unit
 
 ///|
 /// Applies a player decision.
-pub fn Uno::act(self : Uno, seat : Int, a : Action) -> Result[Unit, UnoError] {
+pub fn Uno::act(self : Uno, seat : Int32, a : Action) -> Result[Unit, UnoError] {
   if self.is_over() {
     return Err(GameOver)
   }
@@ -328,14 +326,16 @@ pub fn Uno::act(self : Uno, seat : Int, a : Action) -> Result[Unit, UnoError] {
       match card.playable_on(self.active_color, self.active_face) {
         true => {
           match card.kind {
-            Wild => match chosen {
-              None => return Err(WildNeedsColor)
-              Some(_) => ()
-            }
-            WildDrawFour => match chosen {
-              None => return Err(WildNeedsColor)
-              Some(_) => ()
-            }
+            Wild =>
+              match chosen {
+                None => return Err(WildNeedsColor)
+                Some(_) => ()
+              }
+            WildDrawFour =>
+              match chosen {
+                None => return Err(WildNeedsColor)
+                Some(_) => ()
+              }
             _ =>
               match chosen {
                 Some(_) => return Err(NotPlayable("only wilds take a colour"))
@@ -376,7 +376,7 @@ pub fn Uno::act(self : Uno, seat : Int, a : Action) -> Result[Unit, UnoError] {
       }
     }
     PlayDrawn(chosen) => {
-      if !(self.drawn) {
+      if !self.drawn {
         return Err(NoDrawnCard)
       }
       let hand = self.hands[seat]
@@ -402,7 +402,7 @@ pub fn Uno::act(self : Uno, seat : Int, a : Action) -> Result[Unit, UnoError] {
       Ok(())
     }
     Hold => {
-      if !(self.drawn) {
+      if !self.drawn {
         return Err(NoDrawnCard)
       }
       self.drawn = false
@@ -417,5 +417,10 @@ pub fn Uno::act(self : Uno, seat : Int, a : Action) -> Result[Unit, UnoError] {
 /// The structural profile of UNO: 2..=8 players, hidden hands, a shuffled
 /// deck and strictly sequential turns.
 pub fn Uno::game_info(_self : Uno) -> @core.GameInfo {
-  { players: (2, 8), perfect_information: false, has_chance: true, sequential: true }
+  {
+    players: (2, 8),
+    perfect_information: false,
+    has_chance: true,
+    sequential: true,
+  }
 }

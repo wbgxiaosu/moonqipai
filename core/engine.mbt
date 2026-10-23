@@ -185,7 +185,7 @@ pub fn Engine::render(self : Engine) -> String {
 /// and passes by replaying the undo stack is not possible, so it reports
 /// the number of stones currently on the board plus captured stones as an
 /// approximation; for xiangqi and chess it is the exact move count.
-pub fn Engine::move_count(self : Engine) -> Int {
+pub fn Engine::move_count(self : Engine) -> Int32 {
   match self.inner {
     Inner::Go(g) => {
       let (b, w) = g.captures()

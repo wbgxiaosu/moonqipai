@@ -40,15 +40,18 @@ test "uno: deck size and deal shape" {
 
 ///|
 test "uno: matching rules" {
-  let r7 : @uno.Card = { color: Some(@uno.Red), kind: @uno.Number(7) }
-  let rsk : @uno.Card = { color: Some(@uno.Red), kind: @uno.Skip }
-  let wild : @uno.Card = { color: None, kind: @uno.Wild }
+  let r7 : @uno.Card = { color: Some(@uno.Red), kind: @uno.Number(7), }
+  let rsk : @uno.Card = { color: Some(@uno.Red), kind: @uno.Skip, }
+  let wild : @uno.Card = { color: None, kind: @uno.Wild, }
   assert_true(r7.playable_on(@uno.Red, @uno.Number(3)), "colour match")
   assert_true(r7.playable_on(@uno.Blue, @uno.Number(7)), "number match")
-  assert_true(!(r7.playable_on(@uno.Blue, @uno.Number(2))), "no match")
+  assert_true(!r7.playable_on(@uno.Blue, @uno.Number(2)), "no match")
   assert_true(rsk.playable_on(@uno.Red, @uno.Number(5)), "same colour action")
   assert_true(rsk.playable_on(@uno.Blue, @uno.Skip), "same symbol")
-  assert_true(wild.playable_on(@uno.Green, @uno.Number(0)), "wild always playable")
+  assert_true(
+    wild.playable_on(@uno.Green, @uno.Number(0)),
+    "wild always playable",
+  )
 }
 
 ///|
@@ -61,10 +64,7 @@ test "uno: play, turn advance and colour choice" {
   for i in 0..<hand.length() {
     let c = hand[i]
     match c.color {
-      Some(col) =>
-        if col == u.active_color() {
-          idx = i
-        }
+      Some(col) => if col == u.active_color() { idx = i }
       None => ()
     }
   }
@@ -92,9 +92,7 @@ test "uno: wild requires a colour" {
       for i in 0..<hand.length() {
         if hand[i].kind is @uno.Wild {
           match u.act(0, @uno.Play(i, None)) {
-            Err(@uno.WildNeedsColor) => {
-              tested = true
-            }
+            Err(@uno.WildNeedsColor) => tested = true
             Err(_) => fail("expected WildNeedsColor")
             Ok(_) => fail("wild without colour must fail")
           }
@@ -116,7 +114,10 @@ test "uno: wild requires a colour" {
     }
   }
   if wild_idx >= 0 {
-    assert_true(u.act(0, @uno.Play(wild_idx, Some(@uno.Green))) is Ok(_), "wild with colour plays")
+    assert_true(
+      u.act(0, @uno.Play(wild_idx, Some(@uno.Green))) is Ok(_),
+      "wild with colour plays",
+    )
     assert_true(u.active_color() is @uno.Green, "active colour updated")
   }
 }
@@ -126,11 +127,11 @@ test "uno: draw then play-drawn or hold" {
   // play until a draw happens; verify the drawn-window discipline
   let u = @uno.Uno::new(2, 6UL)
   let mut rounds = 0
-  while !(u.is_over()) && rounds < 40 {
+  while !u.is_over() && rounds < 40 {
     let seat = u.turn()
     let hand = u.hand_of(seat).unwrap()
     let mut played = false
-    if !(u.drawn_pending()) {
+    if !u.drawn_pending() {
       for i in 0..<hand.length() {
         let c = hand[i]
         let choice = if c.kind is @uno.Wild || c.kind is @uno.WildDrawFour {
@@ -149,8 +150,13 @@ test "uno: draw then play-drawn or hold" {
       }
     } else {
       // the drawn card is playable: try play-drawn, otherwise hold
-      let drawn_card = u.hand_of(seat).unwrap()[u.hand_of(seat).unwrap().length() - 1]
-      let choice = if drawn_card.kind is @uno.Wild || drawn_card.kind is @uno.WildDrawFour {
+      let drawn_card = u.hand_of(seat).unwrap()[u
+        .hand_of(seat)
+        .unwrap()
+        .length() -
+        1]
+      let choice = if drawn_card.kind is @uno.Wild ||
+        drawn_card.kind is @uno.WildDrawFour {
         Some(@uno.Red)
       } else {
         None
@@ -162,7 +168,10 @@ test "uno: draw then play-drawn or hold" {
     rounds += 1
   }
   assert_true(rounds < 40 || u.is_over(), "game progresses without deadlock")
-  assert_true(u.winner() >= 0 || rounds < 40, "a game either finishes or stays healthy")
+  assert_true(
+    u.winner() >= 0 || rounds < 40,
+    "a game either finishes or stays healthy",
+  )
 }
 
 ///|
@@ -184,8 +193,14 @@ test "uno: reverse with two players keeps the turn" {
         match c.kind {
           @uno.Reverse =>
             if c.playable_on(u.active_color(), u.active_face()) {
-              assert_true(u.act(0, @uno.Play(i, None)) is Ok(_), "reverse played")
-              assert_true(u.turn() == 0, "same player moves again with two players")
+              assert_true(
+                u.act(0, @uno.Play(i, None)) is Ok(_),
+                "reverse played",
+              )
+              assert_true(
+                u.turn() == 0,
+                "same player moves again with two players",
+              )
               found = true
               break
             }

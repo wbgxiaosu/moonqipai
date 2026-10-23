@@ -12,7 +12,10 @@ test "blackjack: hand values with soft aces" {
   let hand2 = @cards.Card::parse_many("Ah 7d 9s").unwrap()
   assert_true(@blackjack.hand_value(hand2) == 17, "A soft-turned counts 1")
   let hand3 = @cards.Card::parse_many("Ah Ad Kd").unwrap()
-  assert_true(@blackjack.hand_value(hand3) == 12, "two aces count 1+1 with a king")
+  assert_true(
+    @blackjack.hand_value(hand3) == 12,
+    "two aces count 1+1 with a king",
+  )
   let hand4 = @cards.Card::parse_many("Kd Qs Jh").unwrap()
   assert_true(@blackjack.hand_value(hand4) == 30, "face cards count ten")
 }
@@ -37,7 +40,7 @@ test "blackjack: bust on hit settles as a dealer win" {
   // seed 3: force a bust by hitting until over 21 (bounded attempts)
   let b = @blackjack.Blackjack::new(3UL)
   let mut hits = 0
-  while !(b.is_over()) && hits < 10 {
+  while !b.is_over() && hits < 10 {
     let _ = b.act(@blackjack.Hit)
     hits += 1
   }
@@ -58,12 +61,8 @@ test "blackjack: natural blackjack pays 3 to 2" {
     let b = @blackjack.Blackjack::new(seed)
     if b.is_over() && b.player_total() == 21 {
       match b.result() {
-        Some(@blackjack.PlayerWin(2.5)) => {
-          found = true
-        }
-        Some(@blackjack.Push) => {
-          found = true
-        }
+        Some(@blackjack.PlayerWin(2.5)) => found = true
+        Some(@blackjack.Push) => found = true
         _ => fail("natural must pay 2.5 or push")
       }
       break
@@ -80,7 +79,7 @@ test "blackjack: natural blackjack pays 3 to 2" {
 test "blackjack: stand settles against the dealer rule" {
   let b = @blackjack.Blackjack::new(42UL)
   let mut guards = 0
-  while !(b.is_over()) && guards < 5 {
+  while !b.is_over() && guards < 5 {
     // stand immediately if close to 21, otherwise hit once
     if b.player_total() >= 18 {
       let _ = b.act(@blackjack.Stand)
@@ -89,7 +88,7 @@ test "blackjack: stand settles against the dealer rule" {
     }
     guards += 1
   }
-  if guards >= 5 && !(b.is_over()) {
+  if guards >= 5 && !b.is_over() {
     let _ = b.act(@blackjack.Stand)
   }
   assert_true(b.is_over(), "stand settles the hand")

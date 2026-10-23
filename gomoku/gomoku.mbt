@@ -50,30 +50,23 @@ pub fn MoveError::message(self : MoveError) -> String {
 /// without a line is a draw. All state changes go through the same
 /// `play` / `undo` discipline as the other engines in this library.
 pub struct Gomoku {
-  priv size : Int
+  priv size : Int32
   priv cells : Array[Stone]
   priv mut turn : Stone
   priv mut winner : Stone
-  priv mut moves_played : Int
-  priv undo_stack : Array[Int]
+  priv mut moves_played : Int32
+  priv undo_stack : Array[Int32]
 }
 
 ///|
 /// Creates an empty `size x size` position (2..=26).
-pub fn Gomoku::new(size : Int) -> Gomoku {
+pub fn Gomoku::new(size : Int32) -> Gomoku {
   let cells : Array[Stone] = []
   let n = size * size
   for _ in 0..<n {
     cells.push(Empty)
   }
-  {
-    size,
-    cells,
-    turn: Black,
-    winner: Empty,
-    moves_played: 0,
-    undo_stack: [],
-  }
+  { size, cells, turn: Black, winner: Empty, moves_played: 0, undo_stack: [], }
 }
 
 ///|
@@ -84,7 +77,7 @@ pub fn Gomoku::standard() -> Gomoku {
 
 ///|
 /// The board size.
-pub fn Gomoku::size(self : Gomoku) -> Int {
+pub fn Gomoku::size(self : Gomoku) -> Int32 {
   self.size
 }
 
@@ -109,13 +102,13 @@ pub fn Gomoku::is_over(self : Gomoku) -> Bool {
 
 ///|
 /// Number of stones on the board.
-pub fn Gomoku::stone_count(self : Gomoku) -> Int {
+pub fn Gomoku::stone_count(self : Gomoku) -> Int32 {
   self.moves_played
 }
 
 ///|
 /// Reads a point; out-of-range indices yield `Empty`.
-pub fn Gomoku::get(self : Gomoku, row : Int, col : Int) -> Stone {
+pub fn Gomoku::get(self : Gomoku, row : Int32, col : Int32) -> Stone {
   if row < 0 || col < 0 || row >= self.size || col >= self.size {
     return Empty
   }
@@ -123,13 +116,13 @@ pub fn Gomoku::get(self : Gomoku, row : Int, col : Int) -> Stone {
 }
 
 ///|
-fn Gomoku::set(self : Gomoku, row : Int, col : Int, s : Stone) -> Unit {
+fn Gomoku::set(self : Gomoku, row : Int32, col : Int32, s : Stone) -> Unit {
   self.cells[row * self.size + col] = s
 }
 
 ///|
 /// Whether the move is inside the board and the point is empty.
-pub fn Gomoku::is_legal(self : Gomoku, row : Int, col : Int) -> Bool {
+pub fn Gomoku::is_legal(self : Gomoku, row : Int32, col : Int32) -> Bool {
   if row < 0 || col < 0 || row >= self.size || col >= self.size {
     return false
   }
@@ -138,8 +131,8 @@ pub fn Gomoku::is_legal(self : Gomoku, row : Int, col : Int) -> Bool {
 
 ///|
 /// All legal moves as (row, col) pairs in scan order.
-pub fn Gomoku::legal_moves(self : Gomoku) -> Array[(Int, Int)] {
-  let acc : Array[(Int, Int)] = []
+pub fn Gomoku::legal_moves(self : Gomoku) -> Array[(Int32, Int32)] {
+  let acc : Array[(Int32, Int32)] = []
   if !(self.winner is Empty) {
     return acc
   }
@@ -155,11 +148,15 @@ pub fn Gomoku::legal_moves(self : Gomoku) -> Array[(Int, Int)] {
 ///|
 /// Places a stone for the side to move. Alternation is enforced: the
 /// stone colour always equals the current turn.
-pub fn Gomoku::play(self : Gomoku, row : Int, col : Int) -> Result[Unit, MoveError] {
+pub fn Gomoku::play(
+  self : Gomoku,
+  row : Int32,
+  col : Int32,
+) -> Result[Unit, MoveError] {
   if !(self.winner is Empty) {
     return Err(GameOver)
   }
-  if !(self.is_legal(row, col)) {
+  if !self.is_legal(row, col) {
     if row < 0 || col < 0 || row >= self.size || col >= self.size {
       return Err(OutOfBounds)
     }
@@ -199,8 +196,8 @@ pub fn Gomoku::undo(self : Gomoku) -> Bool {
 ///|
 /// Whether the stone just placed at (row, col) completes a line of five
 /// or more in any of the four directions.
-fn Gomoku::has_line_at(self : Gomoku, row : Int, col : Int) -> Bool {
-  let dirs : Array[(Int, Int)] = [(0, 1), (1, 0), (1, 1), (1, -1)]
+fn Gomoku::has_line_at(self : Gomoku, row : Int32, col : Int32) -> Bool {
+  let dirs : Array[(Int32, Int32)] = [(0, 1), (1, 0), (1, 1), (1, -1)]
   let s = self.get(row, col)
   for d in dirs {
     let (dr, dc) = d
@@ -239,11 +236,7 @@ pub fn Gomoku::render(self : Gomoku) -> String {
   }
   buf.write_string("\n")
   for r in 0..<self.size {
-    let label = if r + 1 < 10 {
-      " \{r + 1}"
-    } else {
-      "\{r + 1}"
-    }
+    let label = if r + 1 < 10 { " \{r + 1}" } else { "\{r + 1}" }
     buf.write_string("\{label} ")
     for c in 0..<self.size {
       buf.write_string(

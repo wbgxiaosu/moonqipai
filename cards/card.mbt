@@ -56,7 +56,7 @@ pub extend Rank with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Numeric value of the rank: deuce = 2 ... ace = 14 (aces high).
-pub fn Rank::value(self : Rank) -> Int {
+pub fn Rank::value(self : Rank) -> Int32 {
   match self {
     R2 => 2
     R3 => 3
@@ -116,7 +116,7 @@ pub extend Card with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Builds a card from a suit and rank.
 pub fn Card::of(suit : Suit, rank : Rank) -> Card {
-  { suit, rank }
+  { suit, rank, }
 }
 
 ///|
@@ -151,7 +151,7 @@ pub fn Card::parse(text : String) -> Card? {
     _ => None
   }
   match (rank, suit) {
-    (Some(r), Some(s)) => Some({ suit: s, rank: r })
+    (Some(r), Some(s)) => Some({ suit: s, rank: r, })
     _ => None
   }
 }
