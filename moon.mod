@@ -1,7 +1,7 @@
 // moonqipai module configuration
 name = "wbgxiaosu/moonqipai"
 
-version = "0.1.0"
+version = "0.2.0"
 
 readme = "README.md"
 
@@ -25,7 +25,7 @@ keywords = [
 
 preferred_target = "wasm-gc"
 
-description = "Unified board & card game rules foundation for MoonBit: Go, Xiangqi, International Chess and generic poker behind one engine interface"
+description = "Unified board & card game rules foundation for MoonBit: Go, Xiangqi, Chess, Gomoku, Othello, Blackjack and Five-card Draw behind one interface, with shared GameInfo/Rng abstractions"
 
 import {
   "L76148/moonchess@0.1.1",
