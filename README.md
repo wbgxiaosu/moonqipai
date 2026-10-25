@@ -126,7 +126,7 @@ Every referenced specification, rule set, algorithm and dependency is named with
 
 ## Acceptance
 
-The acceptance criteria are mapped to concrete, verifiable evidence in [ACCEPTANCE.md](ACCEPTANCE.md).
+The acceptance criteria are mapped to concrete, verifiable evidence in [ACCEPTANCE.md](ACCEPTANCE.md). AI-assisted development and the participant's ownership of goals, technical path and quality boundaries are documented in [docs/AI_COLLABORATION.md](docs/AI_COLLABORATION.md).
 
 ## License
 

@@ -14,6 +14,16 @@ This document maps the hackathon acceptance criteria to concrete evidence in thi
 | 8 | Published to mooncakes.io | <https://mooncakes.io/docs/#/wbgxiaosu/moonqipai> — current release 0.3.1. Install with `moon add wbgxiaosu/moonqipai`. |
 | 9 | OSI-approved open-source licence; upstream compliance | [LICENSE](LICENSE) — Apache License 2.0 (OSI-approved). All three package dependencies are Apache-2.0 and used unmodified; every referenced specification/algorithm is named with source and licence in [docs/RULES_REFERENCES.md](docs/RULES_REFERENCES.md). |
 
+## Hackathon-season criteria mapping
+
+The official hackathon rules (October season) state six acceptance criteria. Four of them are covered by rows 1, 3, 4 and 9 above; the remaining two are mapped here:
+
+| # | Official criterion | Evidence |
+|---|---|---|
+| 2 | Public repository with continuous, traceable commits and development record | <https://github.com/wbgxiaosu/moonqipai> — 35 feature-split commits with descriptive messages, continuous from the initial skeleton to the current release; every version also published to mooncakes.io and verified in a separate consumer project. |
+| 4 | Substantial new work completed this season | [CHANGELOG.md](CHANGELOG.md) 0.2.0 → 0.3.2 documents the October work: six fully original engines (gomoku, othello, checkers, blackjack, five-card draw, uno), the GameInfo/Rng shared abstractions, unified-facade extension to all five board games, and the GameInfo integration for every component — all committed in October 2026. |
+| 6 | AI-assisted but explainable and participant-owned | [docs/AI_COLLABORATION.md](docs/AI_COLLABORATION.md) records the division of work: the participant set the goal, chose the technical path, defined the quality gates, approved rule sources and licences, and can explain the architecture and trade-offs. |
+
 ## Reproduction script
 
 ```bash
