@@ -4,7 +4,7 @@ All notable changes to moonqipai. This project follows a features-first changelo
 
 ## 0.3.3 — 2026-10-26
 
-- Checkers test coverage completed: a two-segment jump chain (including the mid-chain `MustContinueJump` rejection), a crowned king stepping backwards, and a full elimination win — every headline rule of the engine now has a dedicated test (61 tests in total per `moon test`).
+- Checkers test coverage completed: a two-segment jump chain (including the mid-chain `MustContinueJump` rejection), a crowned king stepping backwards, and a full elimination win — every headline rule of the engine now has a dedicated test (60 tests in total per `moon test`).
 
 ## 0.3.2 — 2026-10-23
 
