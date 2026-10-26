@@ -132,3 +132,156 @@ test "checkers: render" {
   assert_true(r.contains("w"), "white man rendered")
   assert_true(r.contains("-"), "light square rendered")
 }
+
+///|
+fn mv(from : Int32, to : Int32) -> @checkers.Move {
+  { from, to, captures: [], }
+}
+
+///|
+/// The scripted lines below were found by randomised self-play under the
+/// same rules and verified legal move by move, so mandatory-capture
+/// semantics hold at every step.
+fn play_script(
+  c : @checkers.Checkers,
+  moves : Array[@checkers.Move],
+) -> Unit raise {
+  for k, m in moves {
+    match c.play(m) {
+      Ok(_) => ()
+      Err(e) =>
+        fail(
+          "setup move \{k} (\{m.from}->\{m.to}) failed: \{@checkers.CheckersError::message(e)}",
+        )
+    }
+  }
+}
+
+///|
+test "checkers: jump chain captures two pieces and cannot be interrupted" {
+  let c = @checkers.Checkers::new()
+  play_script(c, [
+    mv(23, 30),
+    mv(44, 37),
+    { from: 30, to: 44, captures: [37], },
+    { from: 51, to: 37, captures: [44], },
+    mv(17, 24),
+    mv(60, 51),
+    mv(24, 33),
+    { from: 42, to: 24, captures: [33], },
+    mv(21, 28),
+    mv(49, 42),
+    mv(14, 23),
+    mv(46, 39),
+  ])
+  // mandatory capture: every legal move for black is now a jump
+  for m in c.legal_moves() {
+    assert_true(m.captures.length() > 0, "captures are mandatory")
+  }
+  // first segment of the chain: 28 over 37 lands on 46
+  assert_true(
+    c.play({ from: 28, to: 46, captures: [37], }) is Ok(_),
+    "first jump plays",
+  )
+  assert_true(c.jump_pending(), "the chain must continue")
+  assert_true(c.get(37) is @checkers.Empty, "first captured piece removed")
+  // starting a different piece mid-chain is rejected
+  assert_true(
+    c.play({ from: 23, to: 39, captures: [31], })
+    is Err(@checkers.MustContinueJump),
+    "the chain piece must keep jumping",
+  )
+  // second segment: 46 over 53 lands on 60
+  assert_true(
+    c.play({ from: 46, to: 60, captures: [53], }) is Ok(_),
+    "second jump plays",
+  )
+  assert_true(!c.jump_pending(), "chain completed")
+  assert_true(c.get(53) is @checkers.Empty, "second captured piece removed")
+  assert_true(c.get(60) is @checkers.Black, "black landed on 60")
+  assert_true(c.turn() is @checkers.White, "turn passed after the chain")
+}
+
+///|
+test "checkers: a crowned king steps backwards" {
+  let c = @checkers.Checkers::new()
+  play_script(c, [
+    mv(23, 30),
+    mv(44, 37),
+    { from: 30, to: 44, captures: [37], },
+    { from: 51, to: 37, captures: [44], },
+    mv(17, 24),
+    mv(60, 51),
+    mv(24, 33),
+    { from: 42, to: 24, captures: [33], },
+    mv(21, 28),
+    mv(49, 42),
+    mv(14, 23),
+    mv(46, 39),
+    { from: 28, to: 46, captures: [37], },
+    { from: 46, to: 60, captures: [53], },
+    mv(42, 33),
+    { from: 60, to: 42, captures: [51], },
+    mv(33, 26),
+    { from: 19, to: 33, captures: [26], },
+    { from: 40, to: 26, captures: [33], },
+  ])
+  // the black piece that reached the far rank is a king, even after moving on
+  assert_true(c.get(42) is @checkers.Black, "black piece on 42")
+  assert_true(c.is_king(42), "far-rank visitor kept its crown")
+  // a king may step backwards: 42 -> 35 (row decreases)
+  assert_true(c.play(mv(42, 35)) is Ok(_), "backward step plays")
+  assert_true(c.get(35) is @checkers.Black, "king moved backwards")
+  assert_true(c.is_king(35), "kingship survives the move")
+  assert_true(c.turn() is @checkers.White, "turn passed")
+}
+
+///|
+test "checkers: eliminating every white piece wins the game" {
+  let c = @checkers.Checkers::new()
+  play_script(c, [
+    mv(23, 30),
+    mv(44, 37),
+    { from: 30, to: 44, captures: [37], },
+    { from: 51, to: 37, captures: [44], },
+    mv(17, 24),
+    mv(60, 51),
+    mv(24, 33),
+    { from: 42, to: 24, captures: [33], },
+    mv(21, 28),
+    mv(49, 42),
+    mv(14, 23),
+    mv(46, 39),
+    { from: 28, to: 46, captures: [37], },
+    { from: 46, to: 60, captures: [53], },
+    mv(42, 33),
+    { from: 60, to: 42, captures: [51], },
+    mv(33, 26),
+    { from: 19, to: 33, captures: [26], },
+    { from: 40, to: 26, captures: [33], },
+    mv(10, 17),
+    { from: 24, to: 10, captures: [17], },
+    { from: 1, to: 19, captures: [10], },
+    { from: 19, to: 33, captures: [26], },
+    mv(58, 51),
+    { from: 42, to: 60, captures: [51], },
+    mv(56, 49),
+    mv(23, 30),
+    { from: 39, to: 21, captures: [30], },
+    { from: 12, to: 30, captures: [21], },
+    mv(62, 53),
+    { from: 60, to: 46, captures: [53], },
+    { from: 55, to: 37, captures: [46], },
+    { from: 37, to: 23, captures: [30], },
+    mv(3, 12),
+    mv(23, 14),
+    { from: 7, to: 21, captures: [14], },
+    mv(49, 42),
+    { from: 33, to: 51, captures: [42], },
+  ])
+  assert_true(c.is_over(), "no white piece remains")
+  match c.winner() {
+    Some(@checkers.Black) => ()
+    _ => fail("black should have won")
+  }
+}
