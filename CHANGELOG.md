@@ -2,6 +2,10 @@
 
 All notable changes to moonqipai. This project follows a features-first changelog; every version is published on [mooncakes.io](https://mooncakes.io/docs/#/wbgxiaosu/moonqipai).
 
+## 0.3.4 — 2026-10-26
+
+- Housekeeping release: drops a temporary debug test file that slipped into the 0.3.3 archive; content otherwise identical to 0.3.3.
+
 ## 0.3.3 — 2026-10-26
 
 - Checkers test coverage completed: a two-segment jump chain (including the mid-chain `MustContinueJump` rejection), a crowned king stepping backwards, and a full elimination win — every headline rule of the engine now has a dedicated test (60 tests in total per `moon test`).
