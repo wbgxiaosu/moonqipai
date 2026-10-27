@@ -102,15 +102,42 @@ hand 9c 9d 9h 2s 2c = full house
 
 The example binary is documentation only — the deliverable is the library.
 
+### Independent consumer example
+
+[examples/consumer](examples/consumer) is a separate module whose `moon.mod`
+imports the published package name (`wbgxiaosu/moonqipai@0.3.4`) exactly the
+way an external user would. Inside this repository, `moon.work` redirects that
+dependency to the local source tree, so `moon run .` under
+`examples/consumer` continuously proves that the current library is
+installable and usable from a consumer's point of view — CI runs it on every
+push.
+
+```console
+$ cd examples/consumer && moon run .
+chess legal moves: 20
+chess game_info: players=2..2 perfect=true
+gomoku white to move: false
+othello legal moves at start: 4
+checkers white to move: true
+blackjack round over: false
+uno players: 3, over: false
+draw poker over after first bet: false
+hand 9c 9d 9h 2s 2c = full house
+consumer example OK
+```
+
 ## Building and testing
 
 ```bash
 moon check
 moon test
 moon run cmd/main
+cd examples/consumer && moon run .
 ```
 
-CI runs `moon check` and `moon test` on the wasm, wasm-gc and native backends.
+CI runs `moon check --deny-warn` and `moon test --deny-warn` on the wasm,
+wasm-gc and native backends, plus the independent consumer example on every
+push.
 
 ## Roadmap
 

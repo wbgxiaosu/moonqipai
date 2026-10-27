@@ -2,6 +2,11 @@
 
 All notable changes to moonqipai. This project follows a features-first changelog; every version is published on [mooncakes.io](https://mooncakes.io/docs/#/wbgxiaosu/moonqipai).
 
+## 0.3.5 — 2026-10-27
+
+- Independent consumer example (`examples/consumer`): a separate module importing the published mooncakes package name, with `moon.work` redirecting the dependency to the local source so CI proves consumability on every push.
+- CI hardening: `--deny-warn` on `moon check`/`moon test`, plus a dedicated consumer-verification job.
+
 ## 0.3.4 — 2026-10-26
 
 - Housekeeping release: drops a temporary debug test file that slipped into the 0.3.3 archive; content otherwise identical to 0.3.3.

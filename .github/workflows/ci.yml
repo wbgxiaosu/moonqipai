@@ -29,10 +29,30 @@ jobs:
         run: moon fmt --check
 
       - name: moon check
-        run: moon check --target ${{ matrix.backend }}
+        run: moon check --target ${{ matrix.backend }} --deny-warn
 
       - name: moon build
         run: moon build --target ${{ matrix.backend }}
 
       - name: moon test
-        run: moon test --target ${{ matrix.backend }}
+        run: moon test --target ${{ matrix.backend }} --deny-warn
+
+  consumer:
+    # independent consumer module: depends on the published mooncakes
+    # package name; moon.work redirects it to the current source, so CI
+    # continuously proves the library is consumable from outside.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit toolchain
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Refresh registry index
+        run: moon update
+
+      - name: Run the consumer example against the library
+        working-directory: examples/consumer
+        run: moon run . --target wasm-gc --deny-warn
