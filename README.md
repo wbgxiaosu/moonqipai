@@ -105,7 +105,7 @@ The example binary is documentation only — the deliverable is the library.
 ### Independent consumer example
 
 [examples/consumer](examples/consumer) is a separate module whose `moon.mod`
-imports the published package name (`wbgxiaosu/moonqipai@0.3.4`) exactly the
+imports the published package name (`wbgxiaosu/moonqipai@0.3.5`) exactly the
 way an external user would. Inside this repository, `moon.work` redirects that
 dependency to the local source tree, so `moon run .` under
 `examples/consumer` continuously proves that the current library is

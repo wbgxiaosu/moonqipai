@@ -11,7 +11,7 @@ This document maps the hackathon acceptance criteria to concrete evidence in thi
 | 5 | CI covering check, build, test | `.github/workflows/ci.yml` runs `moon check --deny-warn`, `moon build` and `moon test --deny-warn` (plus `moon fmt --check`) on the wasm, wasm-gc and native backends on every push and PR, plus a separate consumer job that runs `examples/consumer` against the library source. |
 | 6 | At least one runnable example / minimal usage sample | Two runnable examples: `cmd/main/main.mbt` drives every game family through the public API (`moon run cmd/main`); `examples/consumer` is an independent module importing the published package name exactly as an external user would, with `moon.work` redirecting it to the current source (`cd examples/consumer && moon run .`) — CI verifies both on every push. |
 | 7 | Complete tests covering core functionality paths | 60 black-box tests across all nine components: legal-move generation and apply for every board game, complete card-game hand flows (betting rounds → draw → showdown; UNO action chains), hidden-information views, GameInfo consistency, seeded-reproducibility of chance games. Run with `moon test`. |
-| 8 | Published to mooncakes.io | <https://mooncakes.io/docs/#/wbgxiaosu/moonqipai> — current release 0.3.1. Install with `moon add wbgxiaosu/moonqipai`. |
+| 8 | Published to mooncakes.io | <https://mooncakes.io/docs/#/wbgxiaosu/moonqipai> — current release 0.3.5. Install with `moon add wbgxiaosu/moonqipai`. |
 | 9 | OSI-approved open-source licence; upstream compliance | [LICENSE](LICENSE) — Apache License 2.0 (OSI-approved). All three package dependencies are Apache-2.0 and used unmodified; every referenced specification/algorithm is named with source and licence in [docs/RULES_REFERENCES.md](docs/RULES_REFERENCES.md). |
 
 ## Hackathon-season criteria mapping
@@ -21,7 +21,7 @@ The official hackathon rules (October season) state six acceptance criteria. Fou
 | # | Official criterion | Evidence |
 |---|---|---|
 | 2 | Public repository with continuous, traceable commits and development record | <https://github.com/wbgxiaosu/moonqipai> — 35 feature-split commits with descriptive messages, continuous from the initial skeleton to the current release; every version also published to mooncakes.io and verified in a separate consumer project. |
-| 4 | Substantial new work completed this season | [CHANGELOG.md](CHANGELOG.md) 0.2.0 → 0.3.2 documents the October work: six fully original engines (gomoku, othello, checkers, blackjack, five-card draw, uno), the GameInfo/Rng shared abstractions, unified-facade extension to all five board games, and the GameInfo integration for every component — all committed in October 2026. |
+| 4 | Substantial new work completed this season | [CHANGELOG.md](CHANGELOG.md) 0.2.0 → 0.3.5 documents the October work: six fully original engines (gomoku, othello, checkers, blackjack, five-card draw, uno), the GameInfo/Rng shared abstractions, unified-facade extension to all five board games, the GameInfo integration for every component, full test coverage of the advertised checkers rules (60 tests) and the independent consumer-verification example — all committed in October 2026. |
 | 6 | AI-assisted but explainable and participant-owned | [docs/AI_COLLABORATION.md](docs/AI_COLLABORATION.md) records the division of work: the participant set the goal, chose the technical path, defined the quality gates, approved rule sources and licences, and can explain the architecture and trade-offs. |
 
 ## Reproduction script
