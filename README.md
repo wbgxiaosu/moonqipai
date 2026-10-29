@@ -31,7 +31,7 @@ Six of the nine entries (plus all shared abstractions) are original code written
 
 ## Installation
 
-Requires the MoonBit toolchain (moonc ≥ 0.10.14). Install the library from [mooncakes.io](https://mooncakes.io/docs/#/wbgxiaosu/moonqipai):
+Requires the MoonBit toolchain (moonc ≥ 0.10.16). Install the library from [mooncakes.io](https://mooncakes.io/docs/#/wbgxiaosu/moonqipai):
 
 ```bash
 moon add wbgxiaosu/moonqipai
