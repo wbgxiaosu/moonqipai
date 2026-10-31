@@ -20,7 +20,7 @@ The official hackathon rules (October season) state six acceptance criteria. Fou
 
 | # | Official criterion | Evidence |
 |---|---|---|
-| 2 | Public repository with continuous, traceable commits and development record | <https://github.com/wbgxiaosu/moonqipai> — 35 feature-split commits with descriptive messages, continuous from the initial skeleton to the current release; every version also published to mooncakes.io and verified in a separate consumer project. |
+| 2 | Public repository with continuous, traceable commits and development record | <https://github.com/wbgxiaosu/moonqipai> — 43 feature-split commits with descriptive messages, continuous from the initial skeleton to the current release; every version also published to mooncakes.io and verified in a separate consumer project. |
 | 4 | Substantial new work completed this season | [CHANGELOG.md](CHANGELOG.md) 0.2.0 → 0.3.5 documents the October work: six fully original engines (gomoku, othello, checkers, blackjack, five-card draw, uno), the GameInfo/Rng shared abstractions, unified-facade extension to all five board games, the GameInfo integration for every component, full test coverage of the advertised checkers rules (60 tests) and the independent consumer-verification example — all committed in October 2026. |
 | 6 | AI-assisted but explainable and participant-owned | [docs/AI_COLLABORATION.md](docs/AI_COLLABORATION.md) records the division of work: the participant set the goal, chose the technical path, defined the quality gates, approved rule sources and licences, and can explain the architecture and trade-offs. |
 
